@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: scp:;">
+
+    <title>SmartClip</title>
+    
+    <style>
+        @font-face {
+            font-family: 'Orbitron';
+            src: url('assets/fonts/Orbitron-VariableFont_wght.ttf') format('truetype');
+            font-weight: 400 900;
+        }
+    </style>
+
+    <link rel="stylesheet" href="assets/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="undoToast"><span>Item Deleted</span>&nbsp;&nbsp;<button id="undoBtn">UNDO</button></div>
+    <div id="confirmModal" style="display: none;">
+        <div class="confirm-content">
+            <div class="confirm-title">Clear Workspace</div>
+            <div class="confirm-msg">
+                This will remove all unpinned items.<br>
+                <span style="color: var(--app-theme); opacity: 0.8; font-size: 0.7rem;">(Recoverable via System Terminal)</span>
+            </div>
+            <div class="confirm-actions">
+                <button id="confirmYes" class="modal-btn" style="border-color:var(--app-theme); color:var(--app-theme);">Clear List</button>
+                <button id="confirmNo" class="modal-btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="status">COPIED!</div>
+    <div id="custom-tooltip"></div>
+    
+    <div id="custom-modal" class="overlay">
+        <div class="modal-card">
+            <div class="modal-text" id="modal-msg">Are you sure?</div>
+            <div class="modal-actions">
+                <button class="modal-btn" id="modal-cancel">Cancel</button>
+                <button class="modal-btn" id="modal-yes">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="help-modal" class="overlay"></div>
+    
+    <div id="context-menu">
+        <div class="ctx-item" id="ctx-copy"><i class="fa-regular fa-copy"></i> Copy</div>
+        <div class="ctx-item" id="ctx-edit"><i class="fa-solid fa-pen"></i> Edit</div>
+        <div class="ctx-item" id="ctx-pin"><i class="fa-solid fa-thumbtack"></i> Pin/Unpin</div>
+        <div class="ctx-item" id="ctx-mask"><i class="fa-solid fa-shield-halved"></i> Secure Item</div>
+        <div class="ctx-sep"></div>
+        <div class="ctx-item" id="ctx-del" style="color:#e74c3c;"><i class="fa-solid fa-trash"></i> Delete</div>
+    </div>
+
+    <div id="dropzone-overlay" class="dropzone-overlay">
+        <div class="dropzone-content">
+            <svg class="glowing-lock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="90" height="90" style="margin-bottom: 25px;">
+            <defs>
+                <linearGradient id="mintGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="var(--accent, #8CFA96)" stop-opacity="1" />
+                    <stop offset="100%" stop-color="#00E5FF" stop-opacity="0.3" />
+                </linearGradient>
+            </defs>
+            
+            <circle cx="50" cy="50" r="44" fill="none" stroke="var(--accent, #8CFA96)" stroke-width="1.5" stroke-dasharray="4 8" opacity="0.5"/>
+            <circle cx="50" cy="50" r="38" fill="none" stroke="var(--accent, #8CFA96)" stroke-width="1" stroke-dasharray="20 10 5 10" opacity="0.8"/>
+            
+            <polygon points="50,22 75,36 75,64 50,78 25,64 25,36" fill="rgba(140, 250, 150, 0.05)" stroke="url(#mintGrad)" stroke-width="3"/>
+            
+            <circle cx="50" cy="50" r="7" fill="var(--accent, #8CFA96)" />
+            <path d="M 50 22 L 50 42 M 75 36 L 56 46 M 75 64 L 56 54 M 50 78 L 50 58 M 25 64 L 44 54 M 25 36 L 44 46" stroke="var(--accent, #8CFA96)" stroke-width="1.5" opacity="0.6"/>
+            
+            <path d="M 35 15 L 20 25 L 20 40 M 65 15 L 80 25 L 80 40 M 35 85 L 20 75 L 20 60 M 65 85 L 80 75 L 80 60" fill="none" stroke="var(--accent, #8CFA96)" stroke-width="2" opacity="0.4"/>
+        </svg>
+        <p style="margin: 0; font-size: 18px; letter-spacing: 3px; font-weight: 900;">DECRYPT .MINT TO SEAL</p>
+    </div>
+</div>
+
+    <div class="header">
+    <div class="logo-wrap">
+        <div id="appLogo"></div>
+        <h3 class="brand-title">SmartClip</h3>
+    </div>
+    
+    <div class="header-center">
+        <button class="win-btn" id="pauseBtn" title="Pause Capture" style="font-size: 26px;">
+            <span class="ctrl-icon"></span>
+        </button>
+    </div>
+    
+    <div class="header-controls">
+        <button class="win-btn" id="settingsBtn" title="Settings"><i class="fa-solid fa-gear"></i></button>
+        <button class="win-btn" id="minimizeBtn" title="Minimize">&minus;</button>
+        <button class="win-btn" id="closeBtn" title="Hide to Tray">&times;</button>
+    </div>
+</div>
+    
+    <div id="settingsPanel" class="settings-panel" style="display: none; padding-bottom: 10px;">
+        
+        <button id="guideLauncher" class="tool-btn" style="width: 100%; text-align: center; margin-bottom: 12px; color: var(--app-theme); border: 1px dotted var(--app-theme); font-weight: bold; background: rgba(0, 188, 212, 0.05); padding: 8px 0; font-size: 0.65rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fa-solid fa-sliders"></i> OPEN SETTINGS & GUIDE
+        </button>
+
+        <div class="search-bar" style="margin-top: 5px;">
+    <input type="text" id="searchInput" placeholder="Search snippets...">
+    <button id="clearSearch" style="display: none; background: none; border: none; color: var(--muted); cursor: pointer; padding: 0 8px; font-size: 14px; transition: color 0.2s;" title="Clear Search">
+        <i class="fa-solid fa-circle-xmark"></i>
+    </button>
+    <div class="search-meta" id="searchMeta" style="display:none;">
+                <span id="matchCount">0/0</span>
+                <button class="search-nav-btn" id="searchUpBtn"><i class="fa-solid fa-chevron-up"></i></button>
+                <button class="search-nav-btn" id="searchDownBtn"><i class="fa-solid fa-chevron-down"></i></button>
+            </div>
+        </div>
+
+        <div class="log-header">
+            <div class="log-left">
+                <button class="info-btn" id="toggleLog" title="View System Logs">i</button>
+                <div class="terminal-title">System Terminal Log</div>
+                <span class="terminal-sub">[&nbsp;Click any entry to restore&nbsp;]</span>
+            </div>
+            <button class="flush-btn" id="flushLog" title="Clear Logs">PURGE</button>
+        </div>
+        <div class="system-log" id="systemLog"></div>
+        
+    </div>
+    
+    <div class="content">
+    <div class="clip-history-header" style="position: relative; display: flex; align-items: center; width: 100%;">
+    <div class="clip-history-box" style="width: 100%;">CLIP HISTORY</div>
+    
+    <button id="consoleBtn" data-tip="Terminal & Search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+</div>
+    <ul id="historyList" style="list-style:none; padding:0; margin:0;"></ul>
+</div>
+    
+    <div class="footer">
+        <div style="font-size: 0.65rem; color: var(--muted);">Items: <span id="itemCount" style="color: var(--app-theme); font-weight: bold;">0</span></div>
+        <div style="display:flex; gap:6px;">
+            <button id="dlBtn" class="tool-btn" title="Export Entire List">Export</button>
+            <button id="clrBtn" class="tool-btn" title="Clear non-favorites">Clear All</button>
+        </div>
+        <div class="resize-handle" title="Drag to resize width"></div>
+    </div>
+    
+    <script type="module" src="renderer.js"></script>
+</body>
+</html>
