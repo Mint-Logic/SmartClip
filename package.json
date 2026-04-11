@@ -1,0 +1,75 @@
+{
+  "name": "smartclip",
+  "productName": "SmartClip",
+  "version": "1.0.0",
+  "description": "Smart clipboard manager with OCR and history analysis.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:pro": "cross-env TEST_PRO_MODE=true electron .",
+    "build": "node build.js core"
+  },
+  "keywords": [
+    "clipboard",
+    "ocr",
+    "history",
+    "productivity"
+  ],
+  "author": "Mint Logic",
+  "license": "MIT",
+  "build": {
+    "appId": "com.mintlogic.smartclip",
+    "productName": "SmartClip",
+    "directories": {
+      "output": "dist/core"
+    },
+    "files": [
+      "**/*",
+      "!dist/*",
+      "!node_modules/*",
+      "!**/*.{ts,tsx}",
+      "!build.js"
+    ],
+    "fileAssociations": [
+      {
+        "ext": "mint",
+        "name": "Mint Logic Cryptographic Seal",
+        "description": "Hardware License Shard for Mint Logic Pro",
+        "icon": "mint-icon.ico",
+        "role": "Viewer"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico",
+      "executableName": "SmartClip"
+    },
+    "nsis": {
+      "artifactName": "SmartClip Setup ${version}.${ext}",
+      "shortcutName": "SmartClip",
+      "uninstallDisplayName": "SmartClip",
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": true
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icon.png"
+    }
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "node-machine-id": "^1.1.12",
+    "tesseract.js": "^5.0.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electron": "^39.2.7",
+    "electron-builder": "^24.13.3"
+  }
+}
