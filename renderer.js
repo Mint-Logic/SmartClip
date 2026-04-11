@@ -979,7 +979,12 @@ if (devCoreToggle) {
 const btnCheckUpd = document.getElementById('btnCheckUpdates');
 if (btnCheckUpd) {
     btnCheckUpd.onclick = () => {
-        window.smartClip.openExternal('https://app.lemonsqueezy.com/my-orders/');
+        const isActuallyPro = window.electronAPI.getIsProSync();
+        if (isActuallyPro) {
+            window.electronAPI.openExternal('https://app.lemonsqueezy.com/my-orders/');
+        } else {
+            window.electronAPI.openExternal('https://github.com/Mint-Logic/CapSize/releases');
+        }
     };
 }
 
