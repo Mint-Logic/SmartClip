@@ -487,8 +487,8 @@ const renderList = (history) => {
     const transforms = [ 
         { label: 'UPPER', type: 'upper' }, 
         { label: 'lower', type: 'lower' }, 
-        { label: 'Slugify', type: 'slugify' }, 
-        { label: 'Camel', type: 'camel' }, 
+        { label: '-slugify-', type: 'slugify' }, 
+        { label: 'camelCase', type: 'camel' }, 
         { label: 'Clean', type: 'clean' } 
     ];
 
@@ -498,8 +498,18 @@ const renderList = (history) => {
             divider.style.cssText = `width: 4px; height: 4px; background-color: #8CFA96; margin: auto 4px; border-radius: 1px;`;
             tfMenu.appendChild(divider);
         }
-        const btn = document.createElement('button');
-        btn.style.cssText = `background: transparent; border: 1px solid transparent; color: var(--txt); padding: 3px 8px; font-size: 0.55rem; cursor: pointer;`;
+        // --- UPDATED TRANSFORM BUTTON STYLE ---
+const btn = document.createElement('button');
+// Changed font-size to 12px and added 10px horizontal padding
+btn.style.cssText = `
+    background: transparent; 
+    border: 1px solid transparent; 
+    color: var(--txt); 
+    padding: 4px 10px; 
+    font-size: 12px; 
+    cursor: pointer;
+    font-weight: 600;
+`;
         btn.textContent = t.label;
         
         // Use the internal performTransform function
