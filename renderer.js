@@ -383,7 +383,7 @@ const renderList = (history) => {
                 <div class="item-footer">
                     <div style="display:flex; gap:10px; align-items:center;">
                         ${showTimes ? `<span style="font-size:0.55rem; color:var(--muted);">${ts}</span>` : ''}
-                        <span class="clip-label click-only" style="font-size:0.55rem; color:var(--app-theme); cursor:pointer; font-weight:bold; opacity:${item.label ? '1' : '0.6'}; transition: opacity 0.2s;" title="${item.label ? 'Edit Label' : 'Set Custom Label'}"><i class="fa-solid fa-tag"></i> ${item.label || 'Add Label'}</span>
+                        <span class="clip-label click-only" style="font-size:0.55rem; color:var(--app-theme); cursor:pointer; font-weight:bold; opacity:0.6; transition: opacity 0.2s;" title="${item.label ? 'Edit Label' : 'Set Custom Label'}"><i class="fa-solid fa-tag"></i> ${item.label || 'Add Label'}</span>
                     </div>
                     <button class="action-btn del-btn ${item.favorite ? 'disabled' : ''}" title="${item.favorite ? 'Unfavorite to Delete' : 'Delete'}"><i class="fa-solid fa-trash"></i></button>
                 </div>
@@ -393,32 +393,49 @@ const renderList = (history) => {
             const labelBtn = li.querySelector('.clip-label');
             if (labelBtn) {
                 labelBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (!IS_PRO_BUILD) { Utils.showMsg("PRO FEATURE"); return; }
-                    
-                    // THE FIX: Replace native prompt() with a sleek inline input
-                    labelBtn.innerHTML = `<input type="text" value="${item.label || ''}" placeholder="Type & hit Enter" style="width: 90px; font-size: 0.55rem; background: var(--bg); border: 1px solid var(--app-theme); color: var(--app-theme); outline: none; border-radius: 2px; padding: 1px 4px; font-family: 'Segoe UI', sans-serif;">`;
-                    
-                    const input = labelBtn.querySelector('input');
-                    input.onclick = (ev) => ev.stopPropagation();
-                    input.focus();
-                    
-                    // Select existing text for quick overwriting
-                    input.select(); 
-                    
-                    const saveLabel = () => {
-                        const newLabel = input.value.trim();
-                        window.smartClip.setLabel({ timestamp: item.timestamp, label: newLabel });
-                    };
-                    
-                    // Save when clicking away, or hitting Enter
-                    input.onblur = saveLabel;
-                    input.onkeydown = (ev) => {
-                        ev.stopPropagation(); // Stop the window from scrolling
-                        if (ev.key === 'Enter') saveLabel();
-                        if (ev.key === 'Escape') renderList(fullHistory); // Cancel & Revert
-                    };
-                };
+    e.stopPropagation();
+    if (!IS_PRO_BUILD) { Utils.showMsg("PRO FEATURE"); return; }
+    
+    // 1. Tell the parent wrapper (holds the time + label) to stretch across the footer
+    const parentDiv = labelBtn.parentElement;
+    parentDiv.style.flex = "1";
+    
+    // 2. Tell the label span to stretch within that parent
+    labelBtn.style.flex = "1";
+    labelBtn.style.display = "block"; 
+    
+    // 3. Make the input 100% width so it hits the trash can boundary
+    labelBtn.innerHTML = `
+        <input type="text" 
+            value="${item.label || ''}" 
+            placeholder="Type & hit Enter" 
+            style="width: 97%; box-sizing: border-box; font-size: 0.55rem; background: var(--bg); border: 1px solid var(--app-theme); color: var(--app-theme); outline: none; border-radius: 2px; padding: 2px 4px; font-family: 'Segoe UI', sans-serif;">
+    `;
+    
+    const input = labelBtn.querySelector('input');
+    if (input) {
+        input.onclick = (ev) => ev.stopPropagation();
+        input.focus();
+        input.select(); 
+        
+        const saveLabel = () => {
+            const newLabel = input.value.trim();
+            window.smartClip.setLabel({ timestamp: item.timestamp, label: newLabel });
+            
+            // Clean up styles so it doesn't break the layout when saved
+            parentDiv.style.flex = "";
+            labelBtn.style.flex = "";
+            labelBtn.style.display = "";
+        };
+        
+        input.onblur = saveLabel;
+        input.onkeydown = (ev) => {
+            ev.stopPropagation(); 
+            if (ev.key === 'Enter') saveLabel();
+            if (ev.key === 'Escape') renderList(fullHistory); 
+        };
+    }
+};
             }
 
             const ocrBtn = li.querySelector('.ocr-badge');
@@ -494,17 +511,25 @@ const renderList = (history) => {
 
     transforms.forEach((t, index) => {
         if (index > 0) {
-            const divider = document.createElement('div');
-            divider.style.cssText = `width: 4px; height: 4px; background-color: #8CFA96; margin: auto 4px; border-radius: 1px;`;
-            tfMenu.appendChild(divider);
-        }
+    const divider = document.createElement('div');
+    // Added a permanent layered box-shadow to create a glowing core with a soft halo
+    divider.style.cssText = `
+        width: 4px; 
+        height: 4px; 
+        background-color: #8CFA96; 
+        margin: auto 4px; 
+        border-radius: 1px;
+        box-shadow: 0 0 4px #8CFA96, 0 0 8px rgba(140, 250, 150, 0.5);
+    `;
+    tfMenu.appendChild(divider);
+}
         // --- UPDATED TRANSFORM BUTTON STYLE ---
 const btn = document.createElement('button');
 // Changed font-size to 12px and added 10px horizontal padding
 btn.style.cssText = `
     background: transparent; 
     border: 1px solid transparent; 
-    color: var(--txt); 
+    color:var(----txt); 
     padding: 4px 10px; 
     font-size: 12px; 
     cursor: pointer;
@@ -512,13 +537,23 @@ btn.style.cssText = `
 `;
         btn.textContent = t.label;
         
-        // Use the internal performTransform function
-        btn.onclick = (ev) => { 
-            ev.stopPropagation(); 
-            performTransform(item.text, t.type); 
-            closeTfMenu(); 
-        };
-        tfMenu.appendChild(btn);
+        // --- DYNAMIC HOVER GLOW ---
+btn.onmouseenter = () => {
+    btn.style.color = 'var(--app-theme)';
+    btn.style.textShadow = '0 0 8px var(--app-theme)';
+};
+btn.onmouseleave = () => {
+    btn.style.color = 'var(--txt)';
+    btn.style.textShadow = 'none';
+};
+
+// Use the internal performTransform function
+btn.onclick = (ev) => { 
+    ev.stopPropagation(); 
+    performTransform(item.text, t.type); 
+    closeTfMenu(); 
+};
+tfMenu.appendChild(btn);
     });
 
     const rect = magicBtn.getBoundingClientRect();

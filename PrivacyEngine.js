@@ -7,22 +7,32 @@ export const PrivacyEngine = {
         if (text.includes("sk_test_") || text.includes("API_KEY=")) return true;
 
         const CRITICAL_PATTERNS = [ 
-            /sk_live_[0-9a-zA-Z]{24}/,        
-            /ghp_[0-9a-zA-Z]{36}/,            
-            /xox[baprs]-[0-9a-zA-Z]{10,48}/,  
-            /AKIA[0-9A-Z]{16}/,               
-            /-----BEGIN (RSA|DSA|EC|PGP) PRIVATE KEY/, 
-            /\b0x[a-fA-F0-9]{40}\b/,          
-            /\b(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}\b/,  
-            /ey[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*/ 
-        ];
+    /sk_live_[0-9a-zA-Z]{24}/,        
+    /ghp_[0-9a-zA-Z]{36}/,            
+    /xox[baprs]-[0-9a-zA-Z]{10,48}/,  
+    /AKIA[0-9A-Z]{16}/,               
+    /-----BEGIN (RSA|DSA|EC|PGP) PRIVATE KEY/, 
+    /\b0x[a-fA-F0-9]{40}\b/,          
+    /\b(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,39}\b/,  
+    /ey[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*/,
+    
+    // --- Personal Identity Filters ---
+    /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/,         // Email
+    /\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/,                          // SSN
+    /(?:\+?\d{1,3}[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/ // Phone
+];
         if (CRITICAL_PATTERNS.some(p => p.test(text))) return true;
         
         const AGGRESSIVE_PATTERNS = [ 
-            /\b(?:\d[ -]*?){13,19}\b/, 
-            /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^])[A-Za-z\d@$!%*?&#^]{12,40}/, 
-            /\b(?:api_key|apikey|token|secret|password|passwd|auth_token)\b\s*[:=]\s*(?:["']?)(\S{5,})(?:["']?)/i 
-        ];
+    // 0: Credit Cards (Luhn check handled later)
+    /\b(?:\d[ -]*?){13,19}\b/, 
+    
+    // 1: Standalone Passwords (6-64 chars, requires Upper, Lower, and Number, expanded special chars)
+    /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&#^_\-+=.]{6,64}/, 
+    
+    // 2: Contextual Passwords/Tokens (e.g. "password: mySecretPassword123")
+    /\b(?:api_key|apikey|token|secret|password|passwd|auth_token)\b\s*[:=]\s*(?:["']?)(\S{5,})(?:["']?)/i 
+];
 
         const isValidLuhn = (numStr) => {
             let sum = 0;
