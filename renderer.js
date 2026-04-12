@@ -976,14 +976,15 @@ if (devCoreToggle) {
 }
 
 // --- UPDATED SETTINGS BUTTONS (SMARTCLIP) ---
-const btnCheckUpd = document.getElementById('btnCheckUpdates');
+const btnCheckUpd = document.getElementById('btnCheckUpdates') || document.getElementById('btn-check-updates');
 if (btnCheckUpd) {
-    btnCheckUpd.onclick = () => {
-        const isActuallyPro = window.electronAPI.getIsProSync();
-        if (isActuallyPro) {
-            window.electronAPI.openExternal('https://app.lemonsqueezy.com/my-orders/');
+    btnCheckUpd.onclick = (e) => {
+        e.preventDefault();
+        // Uses the build config already defined at the top of this script
+        if (IS_PRO_BUILD) {
+            window.smartClip.openExternal('https://app.lemonsqueezy.com/my-orders/');
         } else {
-            window.electronAPI.openExternal('https://github.com/Mint-Logic/CapSize/releases');
+            window.smartClip.openExternal('https://github.com/Mint-Logic/SmartClip/releases');
         }
     };
 }
