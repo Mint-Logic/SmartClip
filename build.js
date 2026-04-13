@@ -21,14 +21,14 @@ const config = isPro ? {
     name: "SmartClip Pro",
     id: "com.mintlogic.smartclip",
     exe: "SmartClip",
-    artifact: "SmartClip Pro Setup \${version}.\${ext}",
+    artifact: "SmartClip Pro Setup ${version}.${ext}",
     shortcut: "SmartClip",
     uninstall: "SmartClip"
 } : {
     name: "SmartClip Core",
     id: "com.mintlogic.smartclip.core",
     exe: "SmartClipCore",
-    artifact: "SmartClip Core Setup \${version}.\${ext}",
+    artifact: "SmartClip Core Setup ${version}.${ext}",
     shortcut: "SmartClip",
     uninstall: "SmartClip"
 };
@@ -83,9 +83,16 @@ try {
 
     const builderConfig = JSON.parse(JSON.stringify(pkg.build || {}));
     builderConfig.files = userFiles;
+    
+    // --- NSIS INSTALLER CONFIGURATION ---
     builderConfig.nsis = builderConfig.nsis || {};
     builderConfig.nsis.oneClick = false;
     builderConfig.nsis.perMachine = true;
+    
+    // Wire up the new backgrounds from the root folder
+    builderConfig.nsis.installerSidebar = "sc-sidebar.bmp";
+    builderConfig.nsis.uninstallerSidebar = "sc-sidebar.bmp";
+    // ------------------------------------
     
     const configPath = path.join(__dirname, 'dist', `temp_builder_config_${type}.json`);
     fs.writeFileSync(configPath, JSON.stringify(builderConfig, null, 2));
