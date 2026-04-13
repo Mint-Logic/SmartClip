@@ -83,6 +83,17 @@ try {
 
     const builderConfig = JSON.parse(JSON.stringify(pkg.build || {}));
     builderConfig.files = userFiles;
+
+    // --- FILE ASSOCIATION REGISTRY ---
+    builderConfig.fileAssociations = [
+        {
+            ext: "mint",
+            name: "Mint Logic License Key",
+            icon: "mint-icon.ico",
+            role: "Viewer"
+        }
+    ];
+    // ---------------------------------
     
     // --- NSIS INSTALLER CONFIGURATION ---
     builderConfig.nsis = builderConfig.nsis || {};
