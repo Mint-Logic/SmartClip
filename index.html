@@ -16,9 +16,12 @@
 
     <link rel="stylesheet" href="assets/css/all.min.css">
     
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
 </head>
+
 <body>
+    <div id="drag-shield"></div> <div id="undoToast">...</div>
+    
     <div id="undoToast"><span>Item Deleted</span>&nbsp;&nbsp;<button id="undoBtn">UNDO</button></div>
     <div id="confirmModal" style="display: none;">
         <div class="confirm-content">
@@ -100,6 +103,7 @@
         <button class="win-btn" id="closeBtn" title="Hide to Tray">&times;</button>
     </div>
 </div>
+
     
     <div id="settingsPanel" class="settings-panel" style="display: none; padding-bottom: 10px;">
         
@@ -144,7 +148,7 @@
     
     <div class="footer">
         <div style="font-size: 0.65rem; color: var(--muted);">Items: <span id="itemCount" style="color: var(--app-theme); font-weight: bold;">0</span></div>
-        <div style="display:flex; gap:6px;">
+        <div style="display:flex; gap:15px;">
             <button id="dlBtn" class="tool-btn" title="Export Entire List">Export</button>
             <button id="clrBtn" class="tool-btn" title="Clear non-favorites">Clear All</button>
         </div>

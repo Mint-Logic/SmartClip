@@ -68,7 +68,8 @@ button:focus { outline: none !important; }
 }
 
 ::-webkit-scrollbar-thumb:hover { 
-    background: var(--app-theme); /* Ignites to full brightness on hover */
+    /* THE FIX: Dropped opacity to 50% so it glows but doesn't blind you */
+    background: rgba(0, 229, 255, 0.5); 
 }
 
 ::-webkit-scrollbar-corner { 
@@ -86,16 +87,34 @@ button:focus { outline: none !important; }
     position: relative; 
     box-sizing: border-box;
     margin-bottom: 0px !important;
-    -webkit-app-region: drag !important; /* MASTER DRAG ZONE */
+    -webkit-app-region: drag;
     user-select: none; 
     transition: all 0.3s ease; 
-    cursor: move;
-    z-index: 100;
-    background: repeating-linear-gradient(45deg, #0B0C0E, #0B0C0E 10px, #0E1012 10px, #0E1012 20px) !important; 
+    
+    background: rgba(11, 12, 14, 0.97) !important; 
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--app-theme);
-    box-shadow: 0 4px 20px rgba(0, 188, 212, 0.15); 
+    box-shadow: 0 4px 20px rgba(0, 229, 255, 0.15); 
     border-top-left-radius: 9px; 
     border-top-right-radius: 9px;
+}
+
+.logo-wrap { 
+    display: flex; align-items: center; gap: 1px; z-index: 1; 
+    -webkit-app-region: drag; 
+}
+
+#appLogo { 
+    width: 32px; height: 32px; background-image: url('icon.png'); 
+    background-size: cover; margin-right: 0px; margin-left: 0px; 
+    -webkit-app-region: drag; 
+    pointer-events: none; /* Prevents the image from blocking the drag */
+}
+
+/* Pop all buttons and logos above the drag layer so they still work */
+.header > * {
+    position: relative;
+    z-index: 1; 
 }
 
 .header button {
@@ -173,18 +192,16 @@ button:focus { outline: none !important; }
 
 .ctrl-icon {
     display: inline-block;
-    width: 26px;             
-    height: 26px;
+    width: 20px; /* UPGRADE: Scaled down */             
+    height: 20px; /* UPGRADE: Scaled down */
     
     background-color: var(--app-theme); 
     
-    /* 1. The WebKit Prefix (For Chrome/Safari/Electron) */
     -webkit-mask-image: url('pause-outline.png');
     -webkit-mask-size: contain;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
 
-    /* 2. The Standard Property (Clears the VS Code warnings) */
     mask-image: url('pause-outline.png');
     mask-size: contain;
     mask-repeat: no-repeat;
@@ -193,19 +210,18 @@ button:focus { outline: none !important; }
     pointer-events: none; 
 }
 
-
 /* --- TACTICAL PAUSE/CAPTURE BUTTON --- */
 #pauseBtn {
-    width: 42px;
-    height: 42px;
+    width: 34px; 
+    height: 34px; 
     background: #0B0C0E; 
-    border: 1px solid rgba(140, 250, 150, 0.3); 
-    border-radius: 10px; 
+    border: 1px solid rgba(140, 250, 150, 0.3); /* RESTORED: Mint Green */
+    border-radius: 8px; 
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 0 10px rgba(140, 250, 150, 0.2), inset 0 0 5px rgba(0, 188, 212, 0.2);
+    box-shadow: 0 0 10px rgba(140, 250, 150, 0.2), inset 0 0 5px rgba(0, 229, 255, 0.2);
     z-index: 10;
     position: relative; 
     -webkit-app-region: no-drag !important;
@@ -213,7 +229,7 @@ button:focus { outline: none !important; }
 }
 
 #pauseBtn:hover {
-    border-color: #8CFA96;
+    border-color: #8CFA96; /* RESTORED: Mint Green */
     box-shadow: 0 0 15px rgba(140, 250, 150, 0.6), inset 0 0 8px rgba(140, 250, 150, 0.4);
     transform: scale(1.05);
 }
@@ -222,8 +238,8 @@ button:focus { outline: none !important; }
     content: '';
     position: absolute;
     top: -1px; left: -1px; right: -1px; bottom: -1px;
-    border-radius: 10px;
-    border: 1px solid #8CFA96;
+    border-radius: 8px;
+    border: 1px solid #8CFA96; /* RESTORED: Mint Green */
     opacity: 0;
     pointer-events: none;
 }
@@ -231,14 +247,14 @@ button:focus { outline: none !important; }
 /* First Ring */
 #pauseBtn:not(.active)::before {
     animation: cyberPing 3s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
-    box-shadow: 0 0 15px rgba(140, 250, 150, 0.6)
+    box-shadow: 0 0 15px rgba(140, 250, 150, 0.6);
 }
 
 /* Second Ring (Delayed) */
 #pauseBtn:not(.active)::after {
     animation: cyberPing 3s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
-    animation-delay: 0.7s; /* This staggers the second wave */
-    box-shadow: 0 0 15px rgba(140, 250, 150, 0.6); /* Brighter glow for the second wave */
+    animation-delay: 0.7s; 
+    box-shadow: 0 0 15px rgba(140, 250, 150, 0.6); 
 }
 
 @keyframes cyberPing {
@@ -366,11 +382,10 @@ body.settings-active .empty-state {
 
 /* --- ITEM --- */
 .item { 
-    background: rgba(20, 22, 26, 1) !important;
-    
-    border: 1px solid rgba(0, 188, 212, 0.3); 
+    background: rgba(20, 22, 26, .90) !important;
+    border: 1px solid rgba(0, 229, 255, 0.10) !important; /* Faint resting Cyan */
     border-radius: 4px; 
-    padding: 8px 12px;
+    padding: 8px 12px !important; /* Exact HexStack padding */
     position: relative; 
     display: block; 
     -webkit-app-region: no-drag; 
@@ -378,49 +393,80 @@ body.settings-active .empty-state {
     flex-shrink: 0;
     margin-top: 0 !important;
     margin-bottom: 8px !important; 
-    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: none !important; /* Kills the ghost shadows */
 }
 
 .item.editing { cursor: default; border-color: var(--app-theme) !important; }
 
-/* 1. The actual Textarea styling */
+/* EXACT HEXSTACK MATCH: Only border lights up, no background shift, no lifting */
+.item:hover { 
+    border-color: var(--app-theme) !important; 
+    background: rgba(20, 22, 26, 1) !important; 
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* EXACT HEXSTACK MATCH: Selected state with ONLY the theme outline */
+.item.selected, .item.selected-item { 
+    border-color: var(--app-theme) !important; 
+    background: rgba(20, 22, 26, 1) !important; /* Locked to the exact resting dark background */
+    box-shadow: none !important; /* Killed the neon glow */
+    z-index: 10;
+}
+
+/* 1. The actual Textarea styling (SEAMLESS MODE) */
 .edit-textarea { 
     width: 100%; 
-    min-height: 100px; 
-    background: var(--bg); 
+    min-height: 20px; 
+    background: transparent !important; 
     color: var(--txt); 
-    border: 1px solid var(--brdr); 
-    font-family: 'Consolas', monospace; 
-    font-size: 0.8rem; 
-    padding: 10px; 
+    border: none !important; 
+    font-family: 'Segoe UI', sans-serif; 
+    font-size: 0.85rem; 
+    line-height: 1.5; 
+    padding: 0 0 40px 0 !important; 
     outline: none; 
-    resize: vertical; 
-    border-radius: 4px; 
-    box-sizing: border-box; 
+    resize: none !important; 
+    overflow: hidden !important; 
     display: block; 
-    margin-bottom: 8px; 
+    border-bottom: 1px dashed rgba(0, 229, 255, 0.3) !important;
+    
+    /* THE STABILITY FIX: Disable transitions so height doesn't "slide" */
+    transition: none !important;
+    -webkit-app-region: no-drag !important;
 }
 
 .edit-textarea:focus {
-    border-color: var(--app-theme);
-    box-shadow: inset 0 0 5px rgba(0, 229, 255, 0.2);
+    border-bottom: 1px solid var(--app-theme) !important;
+    box-shadow: none !important;
 }
 
-/* 2. The password mask styling (un-merged from the textarea) */
-span[style*="letter-spacing:2px"] {
-    user-select: none !important;
-    pointer-events: none !important;
+/* THE UPGRADE: Sticky Action Buttons */
+.edit-actions-group { 
+    display: flex; 
+    gap: 6px; 
+    justify-content: flex-end; 
+    
+    /* Stick strictly to the bottom of the scroll window */
+    position: sticky; 
+    bottom: 0; 
+    
+    /* Pull the buttons up into the invisible padding we just added above */
+    margin-top: -35px; 
+    padding: 10px 4px 6px 0; 
+    
+    /* Solid background so text hides underneath it */
+    background: rgba(20, 22, 26, 1) !important; 
+    z-index: 10;
+    
+    /* Smooth feathering gradient so scrolling text fades out beautifully */
+    box-shadow: 0 -12px 12px rgba(20, 22, 26, 1);
 }
-.edit-actions-group { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; padding-bottom: 4px; }
 .edit-btn-save, .edit-btn-cancel { padding: 2px 10px !important; font-size: 0.6rem !important; height: 22px !important; min-width: 70px !important; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 3px !important; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
 .edit-btn-save { background: rgba(0, 229, 255, 0.1) !important; color: var(--app-theme) !important; border: 1px solid rgba(0, 229, 255, 0.5) !important; }
 .edit-btn-save:hover { background: var(--app-theme) !important; color: var(--bg) !important; border-color: var(--app-theme) !important; }
 .edit-btn-cancel { background: transparent !important; color: var(--muted) !important; border: 1px solid rgba(149, 165, 166, 0.3) !important; }
 .edit-btn-cancel:hover { border-color: var(--muted) !important; color: var(--txt) !important; }
-
-.item:hover, .item.selected { border-color: var(--app-theme); }
-.item.selected-item, .item.selected-item * { background-color: transparent !important; background-image: none !important; }
-.item.selected-item { background-color: var(--bg) !important; border-color: var(--app-theme) !important; box-shadow: 0 0 15px rgba(0, 229, 255, 0.25) !important; transition: all 0.2s ease; z-index: 10; opacity: 1 !important; }
 
 .item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1px; height: 10px !important; position: relative; }
 .left-actions { display: flex; gap: 6px; align-items: center; margin-left: -5px; }
@@ -455,30 +501,78 @@ span[style*="letter-spacing:2px"] {
 
 /* Checkbox (Updated to Ghost State) */
 .select-checkbox { 
-    appearance: none; -webkit-appearance: none; margin-top: 0px; width: 10px !important; height: 10px !important; 
+    appearance: none; -webkit-appearance: none; margin-top: 0px; 
+    width: 14px !important;  /* UPGRADE: Increased from 10px */
+    height: 14px !important; /* UPGRADE: Increased from 10px */
     border: 1px solid var(--muted); border-radius: 2px; background: transparent; 
-    cursor: pointer; position: relative; transition: all 0.2s ease; margin-right: 2px; 
+    cursor: pointer; position: relative; transition: all 0.2s ease; 
+    margin-right: 4px; /* UPGRADE: Gives it breathing room from the next icon */
     display: flex; align-items: center; justify-content: center;
     opacity: 0.2; /* Ghost state */
 }
-.item:hover input[type="checkbox"].select-checkbox, input[type="checkbox"].select-checkbox:checked { opacity: 1; }
-.item:hover input[type="checkbox"].select-checkbox { border-color: var(--app-theme) !important; }
-input[type="checkbox"].select-checkbox:checked { background-color: var(--app-theme) !important; border-color: var(--app-theme) !important; }
-input[type="checkbox"].select-checkbox:checked::after { content: '✔'; font-size: 11px; font-weight: bold; color: var(--bg); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); line-height: 1; }
+
+.item:hover input[type="checkbox"].select-checkbox, input[type="checkbox"].select-checkbox:checked { 
+    opacity: 1; 
+}
+
+.item:hover input[type="checkbox"].select-checkbox { 
+    border-color: var(--app-theme) !important; 
+}
+
+/* THE UPGRADE: Hollow, high-contrast checked state */
+input[type="checkbox"].select-checkbox:checked { 
+    background-color: transparent !important; 
+    border-color: var(--app-theme) !important; 
+}
+
+/* THE UPGRADE: Larger, crisp cyan checkmark */
+input[type="checkbox"].select-checkbox:checked::after { 
+    content: '✔'; 
+    font-size: 11px; /* UPGRADE: Increased to fit the 14px box */
+    font-weight: 900; 
+    color: var(--app-theme); 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    line-height: 1; 
+}
 
 /* Text & Images */
-.text-content { display: inline-block; max-width: 100%; font-family: 'Consolas', monospace; font-size: 0.75rem; color: var(--txt); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; opacity: 0.9; vertical-align: middle; }
+.text-content { 
+    display: inline-block; 
+    max-width: 100%; 
+    font-family: 'Segoe UI', 'Consolas', sans-serif; /* UPGRADE: Clean Typography */
+    font-size: 0.75rem; /* UPGRADE: Increased Legibility */
+    color: var(--txt); 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    cursor: pointer; 
+    opacity: 0.9; 
+    vertical-align: middle; 
+    line-height: 1.5; /* UPGRADE: Breathable lines */
+}
 .text-content:hover { color: var(--app-theme); opacity: 1; }
-.item.expanded .text-content { white-space: pre-wrap; word-break: break-all; overflow: visible; max-height: 300px; overflow-y: auto; }
+.item.expanded .text-content { 
+    white-space: pre-wrap; 
+    word-break: break-all; 
+    
+    /* THE FIX 3: Nuke max-height and overflow to permanently kill the inner scrollbar */
+    overflow: visible !important; 
+    max-height: none !important; 
+    
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
 
 .item.editing .text-content { display: block; width: 100%; }
 .clip-image {
     max-width: 100%; 
-    max-height: 200px; /* Or whatever your current max-height is */
+    max-height: 200px; 
     object-fit: contain;
     border-radius: 4px;
-    
-    /* THE FIX: Forces the image to center itself inside the wrapper */
     display: block;
     margin: 0 auto; 
 }
@@ -487,7 +581,7 @@ input[type="checkbox"].select-checkbox:checked::after { content: '✔'; font-siz
 .smart-tag { display: inline-flex; align-items: center; gap: 4px; background: rgba(0, 229, 255, 0.1); color: var(--app-theme); border: 1px solid var(--app-theme); border-radius: 3px; padding: 1px 6px; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; cursor: pointer; margin-right: 4px; text-decoration: none; transition: 0.2s; }
 .smart-tag:hover { background: var(--app-theme); color: var(--bg); }
 
-.item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0px; padding-top: 2px; height: 14px; border-top: 1px solid rgba(255, 255, 255, 0.03); }
+.item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0px; padding-top: 2px; height: 14px; border-top: .5px solid rgba(140, 250, 150, .15); pointer-events: auto !important;}
 .item-footer span { font-size: 0.55rem !important; opacity: 0.85; letter-spacing: 0.3px; }
 .item-footer .del-btn { font-size: 9px !important; opacity: 0.3; transition: opacity 0.2s; position: relative; top: 5px; }
 .item-footer .del-btn:hover { opacity: 1; color: var(--danger); }
@@ -501,11 +595,13 @@ input[type="checkbox"].select-checkbox:checked::after { content: '✔'; font-siz
     flex-shrink: 0; 
     height: 40px; 
     -webkit-app-region: no-drag; 
+   
     
-    /* --- BACK TO THE EDGE-LIT CANVAS --- */
-    background: repeating-linear-gradient(45deg, #0B0C0E, #0B0C0E 10px, #0E1012 10px, #0E1012 20px) !important;  
+    /* THE UPGRADE: Slightly transparent obsidian with glass blur */
+    background: rgba(11, 12, 14, 0.97) !important;  
+    backdrop-filter: blur(12px);
     border-top: 1px solid var(--app-theme); 
-    box-shadow: 0 -4px 20px rgba(0, 188, 212, 0.15); 
+    box-shadow: 0 -4px 20px rgba(0, 229, 255, 0.15); 
     z-index: 10; 
     border-bottom-left-radius: 9px;
     border-bottom-right-radius: 9px;
@@ -515,7 +611,7 @@ button.tool-btn {
     background: transparent; 
     color: var(--app-theme); 
     border: 1px solid rgba(0, 229, 255, 0.4); 
-    padding: 6px 14px; 
+    padding: 2px 14px; 
     min-width: 90px; 
     border-radius: 2px; 
     font-size: 0.65rem; 
@@ -543,12 +639,12 @@ button.tool-btn:active {
 /* --- EXPORT BUTTON --- */
 #dlBtn { 
     border-color: var(--mint) !important; 
-    color: var(--txt) !important; /* Starts White */
-}
+    color: var(--txt) !important;
+  }
 #dlBtn:hover { 
-    color: var(--txt) !important; /* Turns Mint */
-    background: none !important; /* No background change */
-    box-shadow: 0 0 12px rgba(140, 250, 150, 0.4) !important; /* Mint Glow */
+    color: var(--txt) !important; 
+    background: none !important; 
+    box-shadow: 0 0 12px rgba(140, 250, 150, 0.4) !important; 
 }
 #dlBtn.active-selection { 
     background: rgba(140, 250, 150, 0.1) !important; 
@@ -558,13 +654,13 @@ button.tool-btn:active {
 /* --- CLEAR BUTTON --- */
 #clrBtn { 
     border-color: rgba(231, 76, 60, 0.6) !important; 
-    color: #e74c3c !important; /* Starts Red */
+    color: #e74c3c !important; 
 }
 #clrBtn:hover { 
     border-color: #e74c3c !important; 
-    color: #e74c3c !important; /* Stays Red */
-    background: none !important; /* No background change */
-    box-shadow: 0 0 12px rgba(231, 76, 60, 0.5) !important; /* Red Glow */
+    color: #e74c3c !important; 
+    background: none !important; 
+    box-shadow: 0 0 12px rgba(231, 76, 60, 0.5) !important; 
 }
 #clrBtn.active-selection { 
     background: rgba(231, 76, 60, 0.1) !important; 

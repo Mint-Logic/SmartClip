@@ -70,6 +70,11 @@ const clrBtn = document.getElementById('clrBtn');
 const toggleLogBtn = document.getElementById('toggleLog');
 const flushLogBtn = document.getElementById('flushLog');
 
+document.querySelector('.header').addEventListener('mousedown', () => {
+    document.activeElement.blur(); // Force focus death on any open input
+    window.getSelection().removeAllRanges(); // Clear any text selection
+});
+
 // --- [FINAL PIXEL-PERFECT CALIBRATION] WINDOW SIZING ---
 
 // THE FIX: Track the last known state to prevent infinite resize loops
@@ -565,17 +570,43 @@ tfMenu.appendChild(btn);
 };
                     }
                     
-                    const editBtn = li.querySelector('.edit-btn');
+                   const editBtn = li.querySelector('.edit-btn');
                     if (editBtn) {
                         editBtn.onclick = (e) => {
                             e.stopPropagation(); 
                             if (li.classList.contains('editing')) return; 
+                            
+                            // Transform into seamless editing mode
                             li.classList.add('editing');
-                            textDiv.innerHTML = `<textarea class="edit-textarea"></textarea><div class="edit-actions-group"><button class="edit-btn-cancel">Cancel</button><button class="edit-btn-save">Save Changes</button></div>`;
+                            li.classList.add('expanded');
+                            
+                            const expandBtn = li.querySelector('.expand-btn');
+                            if (expandBtn) expandBtn.classList.add('active');
+
+                            textDiv.innerHTML = `<textarea class="edit-textarea" spellcheck="false"></textarea><div class="edit-actions-group"><button class="edit-btn-cancel">Cancel</button><button class="edit-btn-save">Save</button></div>`;
                             const ta = textDiv.querySelector('textarea');
-                            ta.value = item.text; ta.focus(); 
+                            ta.value = item.text; 
+                            
+                            // THE FIX: Smart Auto-Resize
+                            let lastScrollHeight = 0;
+                            const resizeTa = () => {
+                                ta.style.height = 'auto';
+                                const newHeight = ta.scrollHeight;
+                                ta.style.height = newHeight + 'px';
+                                
+                                // ONLY ping the OS to resize if the text block actually grew/shrank
+                                // This stops the rapid-fire IPC spam that kills the drag handler
+                                if (newHeight !== lastScrollHeight) {
+                                    lastScrollHeight = newHeight;
+                                    updateWindowHeight();
+                                }
+                            };
+                            
+                            ta.addEventListener('input', resizeTa);
+                            setTimeout(() => { resizeTa(); ta.focus(); }, 10);
+                            
                             ta.onclick = ev => ev.stopPropagation();
-                            ta.oncontextmenu = ev => ev.stopPropagation(); // Restores native OS right-click menu inside text box
+                            ta.oncontextmenu = ev => ev.stopPropagation(); 
                             
                             const saveBtn = textDiv.querySelector('.edit-btn-save');
                             const cancelBtn = textDiv.querySelector('.edit-btn-cancel');
@@ -587,15 +618,12 @@ tfMenu.appendChild(btn);
                                 else exitEditMode();
                             };
                             cancelBtn.onclick = (ev) => { ev.stopPropagation(); exitEditMode(); };
+                            
                             function exitEditMode() { 
-    if (ctxMenu) ctxMenu.style.display = 'none'; 
-    li.classList.remove('editing'); 
-    
-    // Ensure we pass the current history state back to the renderer
-    if (typeof renderList === 'function') {
-        renderList(fullHistory); 
-    }
-}
+                                if (ctxMenu) ctxMenu.style.display = 'none'; 
+                                li.classList.remove('editing'); 
+                                if (typeof renderList === 'function') renderList(fullHistory); 
+                            }
                         };
                     }
                 } else { const img = li.querySelector('.clip-image'); if(img) img.onload = () => updateWindowHeight(); }
