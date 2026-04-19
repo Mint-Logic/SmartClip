@@ -931,8 +931,7 @@ const closeHelpBtn = document.getElementById('closeHelpBtn');
 if (settingsBtn) {
     settingsBtn.onclick = () => { 
         if (helpModal) {
-            helpModal.style.display = 'flex'; 
-            
+            helpModal.style.display = 'flex';             
             UIManager.initSettingsTabs(helpModal);
             updateWindowHeight(); 
         }

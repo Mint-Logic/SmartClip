@@ -496,7 +496,22 @@ body.settings-active .empty-state {
 .action-btn.expand-btn i { line-height: 1; display: block; }
 .action-btn { background: none; border: none; padding: 0; margin-bottom: 4px; font-size: 9px; color: var(--muted); transition: 0.2s; }
 .action-btn:hover { color: var(--app-theme); }
-.star-btn.active { color: #f1c40f !important; }
+.star-btn.active { 
+    color: var(--mint) !important; 
+    filter: drop-shadow(0 0 5px rgba(140, 250, 150, 0.3));
+}
+
+/* 2. Add the Mint left-border to the item card when favorited */
+/* This uses :has to detect if the child star button is active */
+.item:has(.star-btn.active) {
+    border-left: 3px solid var(--mint) !important;
+}
+
+/* 3. Ensure the border remains consistent on hover/selection */
+.item.selected:has(.star-btn.active), 
+.item:hover:has(.star-btn.active) {
+    border-left: 3px solid var(--mint) !important;
+}
 .del-btn.disabled { opacity: 0.3; cursor: not-allowed; }
 
 /* Checkbox (Updated to Ghost State) */
