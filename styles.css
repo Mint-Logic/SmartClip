@@ -44,7 +44,14 @@ body {
     border: 1px solid var(--brdr); 
     border-radius: 10px;
     -webkit-app-region: no-drag; 
-    position: relative; 
+    position: relative;
+    /* --- THE FLICKER FIXES --- */
+    /* 1. Forces the body into its own GPU layer */
+    transform: translateZ(0); 
+    /* 2. Prevents the GPU from calculating the back of the layer */
+    backface-visibility: hidden; 
+    /* 3. Smooths out sub-pixel rendering during redraws */
+    -webkit-font-smoothing: antialiased; 
 }
 
 /* [UI FIX] Remove buggy orange focus ring */
@@ -92,11 +99,16 @@ button:focus { outline: none !important; }
     transition: all 0.3s ease; 
     
     background: rgba(11, 12, 14, 0.97) !important; 
-    backdrop-filter: blur(12px);
+    /* backdrop-filter: blur(12px); */
     border-bottom: 1px solid var(--app-theme);
     box-shadow: 0 4px 20px rgba(0, 229, 255, 0.15); 
     border-top-left-radius: 9px; 
     border-top-right-radius: 9px;
+}
+
+.header button, .header-center, .header-controls {
+    -webkit-app-region: no-drag !important;
+    cursor: pointer !important;
 }
 
 .logo-wrap { 
@@ -328,7 +340,7 @@ button:disabled, .disabled, [disabled], .del-btn.disabled { cursor: default !imp
     
     /* --- DARK GRAY GLASS BACKGROUND --- */
     background: rgba(26, 31, 36, .95); /* Deep dark gray frame color, highly opaque */
-    backdrop-filter: blur(12px);       /* Thick frosted effect */
+    /* backdrop-filter: blur(12px); */       /* Thick frosted effect */
 }
 
 .clip-history-header { 
@@ -446,21 +458,15 @@ body.settings-active .empty-state {
     display: flex; 
     gap: 6px; 
     justify-content: flex-end; 
-    
-    /* Stick strictly to the bottom of the scroll window */
     position: sticky; 
     bottom: 0; 
-    
-    /* Pull the buttons up into the invisible padding we just added above */
     margin-top: -35px; 
     padding: 10px 4px 6px 0; 
-    
-    /* Solid background so text hides underneath it */
     background: rgba(20, 22, 26, 1) !important; 
     z-index: 10;
     
-    /* Smooth feathering gradient so scrolling text fades out beautifully */
-    box-shadow: 0 -12px 12px rgba(20, 22, 26, 1);
+    /* Shadow completely removed */
+    box-shadow: none;
 }
 .edit-btn-save, .edit-btn-cancel { padding: 2px 10px !important; font-size: 0.6rem !important; height: 22px !important; min-width: 70px !important; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 3px !important; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
 .edit-btn-save { background: rgba(0, 229, 255, 0.1) !important; color: var(--app-theme) !important; border: 1px solid rgba(0, 229, 255, 0.5) !important; }
@@ -496,21 +502,13 @@ body.settings-active .empty-state {
 .action-btn.expand-btn i { line-height: 1; display: block; }
 .action-btn { background: none; border: none; padding: 0; margin-bottom: 4px; font-size: 9px; color: var(--muted); transition: 0.2s; }
 .action-btn:hover { color: var(--app-theme); }
-.star-btn.active { 
-    color: var(--mint) !important; 
-    filter: drop-shadow(0 0 5px rgba(140, 250, 150, 0.3));
+.star-btn.active { color: #8CFA96 !important; }
+.star-btn:hover {
+    color: #8CFA96 !important;
+    transform: scale(1.2);
 }
-
-/* 2. Add the Mint left-border to the item card when favorited */
-/* This uses :has to detect if the child star button is active */
-.item:has(.star-btn.active) {
-    border-left: 3px solid var(--mint) !important;
-}
-
-/* 3. Ensure the border remains consistent on hover/selection */
-.item.selected:has(.star-btn.active), 
-.item:hover:has(.star-btn.active) {
-    border-left: 3px solid var(--mint) !important;
+.item.is-starred {
+    border-left: 3px solid #8CFA96 !important; /* Thick mint border on the left */
 }
 .del-btn.disabled { opacity: 0.3; cursor: not-allowed; }
 
@@ -596,9 +594,9 @@ input[type="checkbox"].select-checkbox:checked::after {
 .smart-tag { display: inline-flex; align-items: center; gap: 4px; background: rgba(0, 229, 255, 0.1); color: var(--app-theme); border: 1px solid var(--app-theme); border-radius: 3px; padding: 1px 6px; font-size: 0.6rem; font-weight: bold; text-transform: uppercase; cursor: pointer; margin-right: 4px; text-decoration: none; transition: 0.2s; }
 .smart-tag:hover { background: var(--app-theme); color: var(--bg); }
 
-.item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0px; padding-top: 2px; height: 14px; border-top: .5px solid rgba(140, 250, 150, .15); pointer-events: auto !important;}
+.item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0px; padding-top: 8px; height: 16px; border-top: .5px solid rgba(140, 250, 150, .15); pointer-events: auto !important;}
 .item-footer span { font-size: 0.55rem !important; opacity: 0.85; letter-spacing: 0.3px; }
-.item-footer .del-btn { font-size: 9px !important; opacity: 0.3; transition: opacity 0.2s; position: relative; top: 5px; }
+.item-footer .del-btn { font-size: 9px !important; opacity: 0.3; transition: opacity 0.2s; position: relative; top: 5px; margin-left: 10px;}
 .item-footer .del-btn:hover { opacity: 1; color: var(--danger); }
 
 /* --- FOOTER --- */
@@ -614,7 +612,7 @@ input[type="checkbox"].select-checkbox:checked::after {
     
     /* THE UPGRADE: Slightly transparent obsidian with glass blur */
     background: rgba(11, 12, 14, 0.97) !important;  
-    backdrop-filter: blur(12px);
+    /* backdrop-filter: blur(12px); */
     border-top: 1px solid var(--app-theme); 
     box-shadow: 0 -4px 20px rgba(0, 229, 255, 0.15); 
     z-index: 10; 

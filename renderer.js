@@ -70,10 +70,6 @@ const clrBtn = document.getElementById('clrBtn');
 const toggleLogBtn = document.getElementById('toggleLog');
 const flushLogBtn = document.getElementById('flushLog');
 
-document.querySelector('.header').addEventListener('mousedown', () => {
-    document.activeElement.blur(); // Force focus death on any open input
-    window.getSelection().removeAllRanges(); // Clear any text selection
-});
 
 // --- [FINAL PIXEL-PERFECT CALIBRATION] WINDOW SIZING ---
 
@@ -168,9 +164,19 @@ const tfMenu = UIManager.createTransformMenu();
 
 const performTransform = (text, type) => {
     const res = Utils.transformText(text, type);
-    window.smartClip.writeClipboard(res);
+    
+    // THE FIX: By using restoreClip instead of writeClipboard, 
+    // we explicitly tell the backend to push this brand-new string 
+    // to the top of the history AND write it to the OS clipboard!
+    window.smartClip.restoreClip({ text: res, type: 'text' });
+    
     Utils.showMsg(type.toUpperCase() + " COPIED!");
     tfMenu.style.display = 'none';
+
+    // Added the auto-close safety check here so it matches normal copies
+    if (autoClose) {
+        setTimeout(() => window.smartClip.hideWindow(), 250);
+    }
 };
 
 const closeTfMenu = () => UIManager.closeTransformMenu(tfMenu);
@@ -239,8 +245,11 @@ if (!IS_PRO_BUILD) {
 
 const handleCopy = (item) => {
     // Execute the copy based on type
-    if (item.type === 'image') window.smartClip.writeImage(item.text);
-    else window.smartClip.writeClipboard(item.text);
+    if (item.type === 'image') {
+        window.smartClip.writeImage(item.text);
+    } else {
+        window.smartClip.writeClipboard(item.text);
+    }
     
     Utils.showMsg("COPIED!");
 
@@ -248,7 +257,7 @@ const handleCopy = (item) => {
     if (autoClose && !isSelectionMode) { 
         setTimeout(() => {
             window.smartClip.hideWindow();
-        }, 250); // 250ms is the 'Sweet Spot' for UI feedback
+        }, 250); 
     }
 };
 
@@ -344,9 +353,9 @@ const renderList = (history) => {
     displayedHistory.forEach((item, index) => {
         try {
             const li = document.createElement('li');
-            li.className = 'item';
-            li.dataset.index = index; 
-            if (selectedItems.has(item.timestamp)) li.classList.add('selected-item'); 
+            li.className = `item ${item.favorite ? 'is-starred' : ''}`;
+        li.dataset.index = index; 
+        if (selectedItems.has(item.timestamp)) li.classList.add('selected-item');
             
             const ts = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             let sizeStr = "", smartActionHTML = '';
@@ -355,12 +364,16 @@ const renderList = (history) => {
             const isSecret = HistoryManager.isSecret(item);
 
             if (item.type === 'image') {
-                // If dimensions exist, show them. Otherwise fallback to "IMG" for older clips.
-                sizeStr = item.dimensions ? `${item.dimensions} px` : "IMG";
-                
-                smartActionHTML = `<span class="smart-tag"><i class="fa-regular fa-image"></i> IMAGE</span>`;
-                if (item.ocrText && IS_PRO_BUILD) smartActionHTML += `<span class="smart-tag ocr-badge" style="border-color:var(--txt); color:var(--txt); margin-left:4px;" title="Text: ${item.ocrText.substring(0,50)}...">TXT</span>`;
-            } else {
+    // If dimensions exist, show them. Otherwise fallback to "IMG" for older clips.
+    sizeStr = item.dimensions ? `${item.dimensions} px` : "IMG";
+    
+    smartActionHTML = `<span class="smart-tag img-badge" title="Copy Image"><i class="fa-regular fa-image"></i> IMAGE</span>`;
+    
+    if (IS_PRO_BUILD) {
+        const hoverTitle = item.ocrText ? `Text: ${item.ocrText.substring(0,50)}...` : "Extract Text";
+        smartActionHTML += `<span class="smart-tag ocr-badge" style="border-color:var(--txt); color:var(--txt); margin-left:4px;" title="${hoverTitle}"><i class="fa-solid fa-file-lines"></i> TEXT</span>`;
+    }
+} else {
                 sizeStr = Utils.formatBytes(item.text);
                 if (item.isWeb) smartActionHTML += `<button class="smart-tag" onclick="window.open('${item.text}', '_blank'); event.stopPropagation();"><i class="fa-solid fa-arrow-up-right-from-square"></i> OPEN</button>`;
                 if (item.isColor) {
@@ -379,18 +392,21 @@ const renderList = (history) => {
                         <button class="action-btn star-btn ${item.favorite ? 'active' : ''}" title="${item.favorite ? 'Unfavorite' : 'Favorite'}"><i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i></button>
                         ${(item.type === 'text' && IS_PRO_BUILD && !isSecret) ? `<button class="action-btn edit-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>` : ''}
                     </div>
-                    <div class="copy-instruction">${isSecret ? 'click to copy hidden text' : 'click text to copy'}</div>
-                    <div class="right-actions">${smartActionHTML}<span style="font-size:0.55rem; color:var(--muted); opacity:0.7; margin-left:6px;">${sizeStr}</span></div>
+                    <div class="copy-instruction">${isSecret ? 'click to copy hidden text' : (item.type === 'image' ? 'click image or tags to copy' : 'click text to copy')}</div>
+                    <div class="right-actions"><span style="font-size:0.55rem; color:var(--muted); opacity:0.7;">${sizeStr}</span></div>
                 </div>
                 <div class="content-wrapper">
-                    ${item.type === 'image' ? `<img src="${item.text.startsWith('data:') ? item.text : 'scp://load/' + item.text}" class="clip-image" title="Click to Copy Image" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'padding:10px; color:#e74c3c; font-size:10px;\'>[IMAGE DELETED]</div>';" />` : `<div class="text-content"></div>`}
+                    ${item.type === 'image' ? `<img src="${item.text.startsWith('data:') ? item.text : 'scp://load/' + item.text}" class="clip-image" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'padding:10px; color:#e74c3c; font-size:10px;\'>[IMAGE DELETED]</div>';" />` : `<div class="text-content"></div>`}
                 </div>
                 <div class="item-footer">
                     <div style="display:flex; gap:10px; align-items:center;">
                         ${showTimes ? `<span style="font-size:0.55rem; color:var(--muted);">${ts}</span>` : ''}
                         <span class="clip-label click-only" style="font-size:0.55rem; color:var(--app-theme); cursor:pointer; font-weight:bold; opacity:0.6; transition: opacity 0.2s;" title="${item.label ? 'Edit Label' : 'Set Custom Label'}"><i class="fa-solid fa-tag"></i> ${item.label || 'Add Label'}</span>
                     </div>
-                    <button class="action-btn del-btn ${item.favorite ? 'disabled' : ''}" title="${item.favorite ? 'Unfavorite to Delete' : 'Delete'}"><i class="fa-solid fa-trash"></i></button>
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        ${smartActionHTML}
+                        <button class="action-btn del-btn ${item.favorite ? 'disabled' : ''}" title="${item.favorite ? 'Unfavorite to Delete' : 'Delete'}"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             `;
             
@@ -435,16 +451,48 @@ const renderList = (history) => {
         
         input.onblur = saveLabel;
         input.onkeydown = (ev) => {
-            ev.stopPropagation(); 
-            if (ev.key === 'Enter') saveLabel();
-            if (ev.key === 'Escape') renderList(fullHistory); 
-        };
+    ev.stopPropagation(); 
+    if (ev.key === 'Enter') {
+        input.onblur = null; 
+        input.blur(); // THE FIX: Kill phantom focus
+        window.getSelection().removeAllRanges();
+        saveLabel();
+    }
+    if (ev.key === 'Escape') {
+        input.onblur = null;
+        input.blur(); // THE FIX: Kill phantom focus
+        window.getSelection().removeAllRanges();
+        renderList(fullHistory); 
+    }
+};
     }
 };
             }
 
-            const ocrBtn = li.querySelector('.ocr-badge');
-            if (ocrBtn) ocrBtn.onclick = (e) => { e.stopPropagation(); window.smartClip.writeClipboard(item.ocrText); Utils.showMsg("OCR TEXT COPIED!"); if (autoClose) window.smartClip.hideWindow(); };
+// CLEANED UP CLICK HANDLER:
+const smartOcrBadge = li.querySelector('.ocr-badge');
+if (smartOcrBadge) {
+    smartOcrBadge.onclick = (e) => { 
+        e.stopPropagation(); 
+        
+        if (item.ocrText && item.ocrText.trim() !== '') {
+            window.smartClip.restoreClip({ text: item.ocrText, type: 'text' }); 
+            Utils.showMsg("OCR TEXT EXTRACTED!"); 
+            if (autoClose) window.smartClip.hideWindow(); 
+        } else {
+            Utils.showMsg("NO TEXT DETECTED");
+        }
+    };
+}
+
+const smartImgBadge = li.querySelector('.img-badge');
+if (smartImgBadge) {
+    smartImgBadge.onclick = (e) => { 
+        e.stopPropagation(); 
+        e.preventDefault(); // Stop any ghost browser behaviors
+        handleCopy(item); 
+    };
+}
             
             const checkBox = li.querySelector('.select-checkbox');
             if (checkBox) {
@@ -612,12 +660,19 @@ tfMenu.appendChild(btn);
                             const cancelBtn = textDiv.querySelector('.edit-btn-cancel');
 
                             saveBtn.onclick = (ev) => {
-                                ev.stopPropagation();
-                                const val = ta.value;
-                                if (val !== item.text) window.smartClip.editItem({ timestamp: item.timestamp, newText: val });
-                                else exitEditMode();
-                            };
-                            cancelBtn.onclick = (ev) => { ev.stopPropagation(); exitEditMode(); };
+    ev.stopPropagation();
+    ta.blur(); // THE FIX: Kill phantom focus
+    window.getSelection().removeAllRanges();
+    const val = ta.value;
+    if (val !== item.text) window.smartClip.editItem({ timestamp: item.timestamp, newText: val });
+    else exitEditMode();
+};
+cancelBtn.onclick = (ev) => { 
+    ev.stopPropagation(); 
+    ta.blur(); // THE FIX: Kill phantom focus
+    window.getSelection().removeAllRanges();
+    exitEditMode(); 
+};
                             
                             function exitEditMode() { 
                                 if (ctxMenu) ctxMenu.style.display = 'none'; 
@@ -991,9 +1046,6 @@ if (clrBtn) {
 if (confirmYes) { confirmYes.onclick = () => { window.smartClip.clearHistory(); confirmModal.classList.remove('show'); }; }
 if (confirmNo) { confirmNo.onclick = () => { confirmModal.classList.remove('show'); }; }
 
-document.getElementById('closeBtn').onclick = () => window.smartClip.hideWindow();
-document.getElementById('minimizeBtn').onclick = () => window.smartClip.minimizeWindow();
-
 // ==========================================================
 // --- LICENSE ACTIVATION LOGIC (SMARTCLIP) ---
 // ==========================================================
@@ -1118,6 +1170,9 @@ window.addEventListener('keydown', (e) => {
         }
     }
 });
+
+document.getElementById('closeBtn').onclick = () => window.smartClip.hideWindow();
+document.getElementById('minimizeBtn').onclick = () => window.smartClip.minimizeWindow();
 
 // --- KICKOFF UI MANAGER ---
 UIManager.initTooltips(() => globalSettings);

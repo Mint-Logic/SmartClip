@@ -3,17 +3,17 @@ const { contextBridge, ipcRenderer } = require('electron');
 // 1. Define Allowed Channels (The Whitelist)
 const VALID_CHANNELS = {
     SEND: [
-        'load-data', 'toggle-pause', 'update-settings', 'flush-logs',
+        'load-data', 'toggle-pause', 'drag-window', 'update-settings', 'flush-logs',
         'write-clipboard', 'write-image', 'restore-clip', 'toggle-favorite',
         'delete-item', 'delete-items', 'edit-item', 'clear-history',
         'download-history', 'dev-mode-toggle', 'open-external',
         'hide-window', 'minimize-window', 'resize-window', 'toggle-startup',
         'validate-license', 'get-is-pro-sync', 'validate-license-string',
-        'get-is-dev-sync',
+        'get-is-dev-sync', 
         'set-label', 
         'unmask-item',
         'mask-item',
-        'set-ui-zoom' // <-- ADDED HERE TO PASS SECURITY CHECK
+        'set-ui-zoom', 'write-image-text'
     ],
     RECEIVE: [
         'refresh-data', 'refresh-settings', 'update-logs', 
@@ -23,6 +23,8 @@ const VALID_CHANNELS = {
 };
 
 const smartClipAPI = {
+
+   
     devModeToggle: (val) => smartClipAPI.send('dev-mode-toggle', val),
     // 2. Safe Wrapper for Sending
     send: (channel, data) => {
@@ -80,8 +82,9 @@ const smartClipAPI = {
 
     // [CRITICAL FIX] Moved inside the bridge!
     setLabel: (data) => smartClipAPI.send('set-label', data),
-
+     copyOcrText: (timestamp) => smartClipAPI.send('write-image-text', timestamp),
     // Listeners
+    
     onRefreshData: (callback) => smartClipAPI.on('refresh-data', callback),
     onRefreshSettings: (callback) => smartClipAPI.on('refresh-settings', callback),
     onUpdateLogs: (callback) => smartClipAPI.on('update-logs', callback),

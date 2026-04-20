@@ -51,16 +51,22 @@ async function initOCR() {
         if (!Tesseract) Tesseract = require('tesseract.js');
         const langPathStr = OCR_ASSETS_PATH.endsWith(path.sep) ? OCR_ASSETS_PATH : OCR_ASSETS_PATH + path.sep;
 
-        // 1. Explicitly locate Tesseract's internal engine files
-        const workerScriptPath = require.resolve('tesseract.js/src/worker-script/node/index.js');
+        // 1. Safely resolve worker paths across Tesseract versions (v4 vs v5)
+        let workerScriptPath;
+        try {
+            workerScriptPath = require.resolve('tesseract.js/src/worker-script/node/index.js');
+        } catch (e) {
+            workerScriptPath = require.resolve('tesseract.js/src/worker/node/index.js');
+        }
+        
         const coreScriptPath = require.resolve('tesseract.js-core/tesseract-core.wasm.js');
 
         ocrWorker = await Tesseract.createWorker('eng', 1, {
             langPath: langPathStr,
             cachePath: langPathStr,
-            // 2. THE FIX: Convert the internal engine paths to Absolute URLs
-            workerPath: pathToFileURL(workerScriptPath).href,
-            corePath: pathToFileURL(coreScriptPath).href,
+            // THE FIX: Node.js Tesseract needs raw absolute paths, NOT file:// URL strings.
+            workerPath: workerScriptPath,
+            corePath: coreScriptPath,
             gzip: false, // Essential for 100% offline (prevents remote fetch)
             logger: m => {} 
         });
@@ -273,11 +279,13 @@ async function processOCR(imagePath) {
     if (!IS_PRO_BUILD) return { success: false, error: "Pro feature" };
     try {
         if (!ocrWorker) await initOCR(); // Ensure worker is "hot"
+        
+        // THE FIX: Safety guard in case initOCR threw a silent error
+        if (!ocrWorker) throw new Error("OCR engine failed to initialize."); 
 
-        // Convert the raw Windows path into a Node-safe Absolute URL
-        const safeImageUrl = pathToFileURL(imagePath).href;
-
-        const { data: { text } } = await ocrWorker.recognize(safeImageUrl);
+        // THE FIX: Pass the raw path directly. Tesseract Node handles it perfectly.
+        const { data: { text } } = await ocrWorker.recognize(imagePath);
+        
         return { success: true, text: text.trim() };
     } catch (error) {
         console.error("[OCR] Recognition Error:", error);
@@ -713,7 +721,12 @@ if (newSettings.uiScale !== undefined && window) {
         if (filePath) { fs.writeFileSync(filePath, content); logToUI(`Exported ${items.length} items.`); }
     });
 
-    ipcMain.on('write-clipboard', (event, text) => { lastContent = text; clipboard.writeText(text); });
+    // THE FIX: Sync the exact variables the monitor uses
+    ipcMain.on('write-clipboard', (event, text) => { 
+        pendingText = text; 
+        clipboard.writeText(text); 
+    });
+
     ipcMain.on('write-image', (event, input) => {
     try {
         let img;
@@ -730,8 +743,11 @@ if (newSettings.uiScale !== undefined && window) {
 
         if (img && !img.isEmpty()) {
             clipboard.writeImage(img);
-            // Update lastContent to prevent the app from re-capturing its own paste
-            lastContent = img.toDataURL(); 
+            
+            // THE FIX: Update the exact fingerprint so the monitor ignores this copy event
+            const size = img.getSize();
+            lastImageFingerprint = `${size.width}x${size.height}_${img.getBitmap().length}`; 
+            
         } else {
             console.error("[CLIPBOARD] Failed to create image from:", input);
         }
