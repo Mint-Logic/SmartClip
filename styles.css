@@ -7,7 +7,7 @@
 :root { 
     color-scheme: dark;
     --app-theme: #00E5FF;  
-    --bg: ##0f1215;         
+    --bg: #0f1215;         
     --card: #14161A;       
     --txt: #ecf0f1; 
     --muted: #95a5a6; 
@@ -394,7 +394,7 @@ body.settings-active .empty-state {
 
 /* --- ITEM --- */
 .item { 
-    background: rgba(20, 22, 26, .90) !important;
+   background: rgba(20, 22, 26, 1) !important;
     border: 1px solid rgba(0, 229, 255, 0.10) !important; /* Faint resting Cyan */
     border-radius: 4px; 
     padding: 8px 12px !important; /* Exact HexStack padding */

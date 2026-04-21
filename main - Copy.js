@@ -4,7 +4,7 @@ const fs = require('fs');
 const Store = require('electron-store');
 const licenseMgr = require('./licenseManager');
 const { machineIdSync } = require('node-machine-id');
-
+const { pathToFileURL } = require('url');
 
 
 // --- THE FLICKER FIX ---
@@ -45,36 +45,31 @@ let Tesseract = null;
 let ocrWorker = null;
 
 // [OFFLINE PRO] Initialize a persistent worker once to avoid WASM overhead
-
-const { pathToFileURL } = require('url');
-
-
 async function initOCR() {
     if (ocrWorker) return; 
     try {
-        const Tesseract = require('tesseract.js');
-        const path = require('path');
-
-        // 1. Get raw path and apply ASAR bypass (Core file loads automatically in v5)
-        let finalWorkerPath = require.resolve('tesseract.js/src/worker-script/node/index.js');
-        if (app.isPackaged) {
-            finalWorkerPath = finalWorkerPath.replace('app.asar', 'app.asar.unpacked');
-        }
-
-        // 2. THE FIX: Use your dynamic path, NOT the hardcoded C:\ drive
-        const langPathStr = OCR_ASSETS_PATH + path.sep;
-
-        console.log("[OCR] Booting with dynamic local paths...");
+        if (!Tesseract) Tesseract = require('tesseract.js');
+        
+        // Define the base path for the app (works in dev and production)
+        const appPath = app.getAppPath();
+        
+        // MANUALLY CONSTRUCT PATHS
+        // These point into your node_modules inside the asar
+        const workerPath = path.join(appPath, 'node_modules', 'tesseract.js', 'src', 'worker-script', 'node', 'index.js');
+        const corePath = path.join(appPath, 'node_modules', 'tesseract.js-core', 'tesseract-core.wasm.js');
+        const langPathStr = OCR_ASSETS_PATH.endsWith(path.sep) ? OCR_ASSETS_PATH : OCR_ASSETS_PATH + path.sep;
 
         ocrWorker = await Tesseract.createWorker('eng', 1, {
-            workerPath: finalWorkerPath,
             langPath: langPathStr,
             cachePath: langPathStr,
-            gzip: false,
-            logger: m => console.log(`[OCR] ${m.status}`) 
+            // THE SLEDGEHAMMER: Manually force the file:// protocol
+            workerPath: pathToFileURL(workerPath).href, 
+            corePath: pathToFileURL(corePath).href,
+            gzip: false, 
+            logger: m => {} 
         });
 
-        console.log("[OCR] Worker successfully spawned.");
+        console.log("[OCR] ASAR-Ready Worker Active.");
     } catch (e) {
         console.error("[OCR] Init Failed:", e);
     }
@@ -176,8 +171,6 @@ function initializeApp() {
         webPreferences: { 
             nodeIntegration: false, 
             contextIsolation: true, 
-            webSecurity: false, // Allows reading from C:\SmartClip
-    allowRunningInsecureContent: true,
             preload: path.join(__dirname, 'preload.js'), 
             devTools: true,
             zoomFactor: savedScale 
@@ -314,37 +307,30 @@ function saveClip(content, type = 'text', dimensions = null) {
     let finalContent = content;
     const timestamp = Date.now();
 
-    if (type === 'image') {
-        if (IS_PRO_BUILD) {
-            try {
-                const fileName = `clip_${timestamp}.png`;
-                const filePath = path.join(imagesDir, fileName); // imagesDir is inherited
-                
-                // Save binary buffer to disk
-                fs.writeFileSync(filePath, Buffer.isBuffer(content) ? content : Buffer.from(content.replace(/^data:image\/\w+;base64,/, ""), 'base64'));
-                finalContent = fileName;
-                
-                // Execute OCR using the persistent worker
-                processOCR(filePath).then(res => {
-                    if (res.success && res.text) {
-                        const currentHist = db.get('history');
-                        const item = currentHist.find(i => i.timestamp === timestamp);
-                        if (item) { 
-                            item.ocrText = res.text; 
-                            db.set('history', currentHist); 
-                            if (window && !window.isDestroyed()) window.webContents.send('refresh-data', currentHist); 
-                        }
+    if (type === 'image' && IS_PRO_BUILD) {
+        try {
+            const fileName = `clip_${timestamp}.png`;
+            const filePath = path.join(imagesDir, fileName); // imagesDir is inherited from initializeApp scope
+            
+            // Save binary buffer
+            fs.writeFileSync(filePath, Buffer.isBuffer(content) ? content : Buffer.from(content.replace(/^data:image\/\w+;base64,/, ""), 'base64'));
+            finalContent = fileName;
+            
+            // Execute OCR using the persistent worker
+            processOCR(filePath).then(res => {
+                if (res.success && res.text) {
+                    const currentHist = db.get('history');
+                    const item = currentHist.find(i => i.timestamp === timestamp);
+                    if (item) { 
+                        item.ocrText = res.text; 
+                        db.set('history', currentHist); 
+                        if (window) window.webContents.send('refresh-data', currentHist); 
                     }
-                });
-            } catch (err) { 
-                logToUI(`[ERROR] Image Save Failed: ${err.message}`); 
-                return; 
-            }
-        } else {
-            // THE CORE MODE FIX: Convert raw Buffers to Base64 Data URLs
-            if (Buffer.isBuffer(content)) {
-                finalContent = `data:image/png;base64,${content.toString('base64')}`;
-            }
+                }
+            });
+        } catch (err) { 
+            logToUI(`[ERROR] Image Save Failed: ${err.message}`); 
+            return; 
         }
     }
 
@@ -362,9 +348,6 @@ function saveClip(content, type = 'text', dimensions = null) {
     } else { 
         db.set('history', history); 
     }
-
-    // ADDED THE DESTROYED CHECK HERE
-    if (window && !window.isDestroyed()) window.webContents.send('refresh-data', db.get('history'));
 
     if (window) window.webContents.send('refresh-data', db.get('history'));
     
@@ -463,53 +446,7 @@ function startMonitoring() {
     }, 500);
 }
     app.whenReady().then(async () => {
-
-        const { clipboard } = require('electron');
         
-        ipcMain.handle('perform-image-ocr', async (event, fileName) => {
-   
-    const fs = require('original-fs');
-    const os = require('os');
-
-    // THE ABSOLUTE PATH FIX:
-    // This matches exactly where you found the images manually
-    const imgPath = path.join(
-        os.homedir(), 
-        'AppData', 
-        'Roaming', 
-        'MintLogic', 
-        'SmartClip', 
-        'images', 
-        fileName
-    );
-
-    console.log("[OCR] Attempting to read:", imgPath);
-
-    if (!fs.existsSync(imgPath)) {
-        console.error("[OCR] Still missing! Check folder name:", imgPath);
-        return { success: false, error: "FILE_NOT_FOUND" };
-    }
-
-    try {
-        if (!ocrWorker) await initOCR();
-        const { data: { text } } = await ocrWorker.recognize(imgPath);
-        
-        if (text && text.trim().length > 0) {
-            const cleanedText = text.trim();
-            
-            // 1. Force it onto the OS clipboard so you can PASTE immediately
-            clipboard.writeText(cleanedText);
-            
-            // 2. Return the text to the UI
-            return { success: true, text: cleanedText };
-        }
-        return { success: false };
-    } catch (err) {
-        console.error("OCR Error:", err);
-        return { success: false, error: err.message };
-    }
-});
-
         // ADD THIS: Force the app to wait for the hardware check before building the UI
         await initializeLicense(); 
         

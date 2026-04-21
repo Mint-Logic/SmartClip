@@ -13,7 +13,7 @@ const VALID_CHANNELS = {
         'set-label', 
         'unmask-item',
         'mask-item',
-        'set-ui-zoom', 'write-image-text', 'perform-image-ocr'
+        'set-ui-zoom', 'write-image-text'
     ],
     RECEIVE: [
         'refresh-data', 'refresh-settings', 'update-logs', 
@@ -24,13 +24,7 @@ const VALID_CHANNELS = {
 
 const smartClipAPI = {
 
-   invoke: (channel, ...args) => {
-        if (VALID_CHANNELS.SEND.includes(channel)) {
-            return ipcRenderer.invoke(channel, ...args);
-        }
-        return Promise.reject(`[Blocked] Unauthorized IPC invoke: ${channel}`);
-    },
-    
+   
     devModeToggle: (val) => smartClipAPI.send('dev-mode-toggle', val),
     // 2. Safe Wrapper for Sending
     send: (channel, data) => {

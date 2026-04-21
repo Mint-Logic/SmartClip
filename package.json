@@ -20,6 +20,13 @@
   "build": {
     "appId": "com.mintlogic.smartclip",
     "productName": "SmartClip",
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets",
+        "filter": ["**/*"]
+      }
+    ],
     "directories": {
       "output": "dist/core"
     },
@@ -29,6 +36,9 @@
       "!node_modules/*",
       "!**/*.{ts,tsx}",
       "!build.js"
+    ],
+    "asarUnpack": [
+      "**/node_modules/**/*"
     ],
     "fileAssociations": [
       {
@@ -64,6 +74,7 @@
   },
   "dependencies": {
     "electron-store": "^8.1.0",
+    "node-fetch": "^3.3.2",
     "node-machine-id": "^1.1.12",
     "tesseract.js": "^5.0.0"
   },

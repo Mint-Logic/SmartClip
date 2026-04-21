@@ -396,7 +396,7 @@ const renderList = (history) => {
                     <div class="right-actions"><span style="font-size:0.55rem; color:var(--muted); opacity:0.7;">${sizeStr}</span></div>
                 </div>
                 <div class="content-wrapper">
-                    ${item.type === 'image' ? `<img src="${(typeof item.text === 'string' && item.text.startsWith('data:')) ? item.text : 'scp://load/' + item.text}" class="clip-image" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\\'padding:10px; color:#e74c3c; font-size:10px;\\'>[IMAGE DELETED]</div>';" />` : `<div class="text-content"></div>`}
+                    ${item.type === 'image' ? `<img src="${item.text.startsWith('data:') ? item.text : 'scp://load/' + item.text}" class="clip-image" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\'padding:10px; color:#e74c3c; font-size:10px;\'>[IMAGE DELETED]</div>';" />` : `<div class="text-content"></div>`}
                 </div>
                 <div class="item-footer">
                     <div style="display:flex; gap:10px; align-items:center;">
@@ -474,28 +474,14 @@ const smartOcrBadge = li.querySelector('.ocr-badge');
 if (smartOcrBadge) {
     smartOcrBadge.onclick = (e) => { 
         e.stopPropagation(); 
-        smartOcrBadge.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i>`;
         
-        window.smartClip.invoke('perform-image-ocr', item.text)
-            .then(result => {
-                if (result && result.success) {
-                    // Success feedback
-                    Utils.showMsg("TEXT COPIED TO CLIPBOARD!");
-                    smartOcrBadge.innerHTML = `<i class="fa-solid fa-check"></i> TEXT`;
-                    smartOcrBadge.style.color = "#8CFA96"; // Turn mint green on success
-                    
-                    // Optional: If you want to automatically save this OCR text 
-                    // into the SmartClip history list:
-                    window.smartClip.restoreClip({ text: result.text, type: 'text' });
-                } else {
-                    smartOcrBadge.innerHTML = `<i class="fa-solid fa-file-lines"></i> TEXT`;
-                    Utils.showMsg("NO TEXT FOUND");
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                smartOcrBadge.innerHTML = `<i class="fa-solid fa-file-lines"></i> TEXT`;
-            });
+        if (item.ocrText && item.ocrText.trim() !== '') {
+            window.smartClip.restoreClip({ text: item.ocrText, type: 'text' }); 
+            Utils.showMsg("OCR TEXT EXTRACTED!"); 
+            if (autoClose) window.smartClip.hideWindow(); 
+        } else {
+            Utils.showMsg("NO TEXT DETECTED");
+        }
     };
 }
 
