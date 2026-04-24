@@ -147,13 +147,19 @@
 </div>
     
     <div class="footer">
-        <div style="font-size: 0.65rem; color: var(--muted);">Items: <span id="itemCount" style="color: var(--app-theme); font-weight: bold;">0</span></div>
-        <div style="display:flex; gap:15px;">
-            <button id="dlBtn" class="tool-btn" title="Export Entire List">Export</button>
-            <button id="clrBtn" class="tool-btn" title="Clear non-favorites">Clear All</button>
-        </div>
-        <div class="resize-handle" title="Drag to resize width"></div>
+    <div id="filterGroup" style="display: flex; gap: 4px; align-items: center;">
+        <button class="filter-btn active" data-filter="ALL" title="All Clips"><i class="fa-solid fa-layer-group"></i></button>
+        <button class="filter-btn" data-filter="IMAGE" title="Images Only"><i class="fa-regular fa-image"></i></button>
+        <button class="filter-btn" data-filter="LINK" title="Links Only"><i class="fa-solid fa-link"></i></button>
+        <button class="filter-btn" data-filter="COLOR" title="Colors Only"><i class="fa-solid fa-palette"></i></button>
     </div>
+    
+    <div style="display:flex; gap:15px; align-items: center;">
+        <button id="dlBtn" class="tool-btn">Export</button>
+        <button id="clrBtn" class="tool-btn" title="Clear Non-Favorites">Clear All</button>
+    </div>
+    <div class="resize-handle" title="Drag to resize width"></div>
+</div>
     
     <script type="module" src="renderer.js"></script>
 </body>

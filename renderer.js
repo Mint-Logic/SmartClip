@@ -13,6 +13,7 @@ const IS_PRO_BUILD = window.smartClip.getIsProSync();
 const IS_DEV = window.smartClip.getIsDevSync();
 
 // --- STATE VARIABLES ---
+let activeFilter = 'ALL';
 let fullHistory = [];
 let displayedHistory = []; 
 let showTimes = true;
@@ -25,6 +26,23 @@ let globalSettings = { tooltipsEnabled: true };
 let lastDeleted = null;
 let undoTimeout = null;
 let isUndoHovered = false;
+
+const tinFoilJokes = [
+ "Best for those handling sensitive credentials, or for people who suspect their toaster is spying on them.",
+                "Best for high-security environments, or for users operating from inside a Faraday cage in an underground bunker.",
+                "Best for top-secret data, or for those convinced the neighbors are foreign intelligence operatives.",
+                "Best for security pros, or for anyone who thinks their microwave is reporting back to headquarters.",
+                "Best for keeping secrets, or for people who cover their webcam with three layers of duct tape.",
+                "Best for privacy-obsessives, or for users who communicate exclusively via carrier pigeon.",
+                "Best for deep-cover agents, or for those who don't even trust their own shadow.",
+                "Best for protecting industrial secrets, or for people who think the Wi-Fi signal is telling them to buy more kale.",
+                "Best for sensitive assets, or for users who are convinced their neighbor’s cat is a government surveillance drone.",
+                "Best for classified data, or for people who keep their router in a lead-lined box 'just in case'.",
+                "Best for protecting the crown jewels, or for people who think their smart-fridge is judging their life choices.",
+                "Best for security purists, or for people who believe their Roomba is mapping their house for an upcoming alien invasion.",
+                "Best for protecting the nuclear launch codes, or for people who work at Area 51."
+            ];
+
 
 // --- DOM ELEMENTS ---
 const undoToast = document.getElementById('undoToast');
@@ -318,16 +336,32 @@ const updateActionButtons = () => {
 
 const renderList = (history) => {
     const list = document.getElementById('historyList');
-    if (!list) return; // Safety check
+    const clipHeader = document.querySelector('.clip-history-header'); 
+    const historyBox = document.querySelector('.clip-history-box'); 
+    if (!list) return; 
     list.innerHTML = '';
     
     const rawTerm = (searchInput && searchInput.value) ? searchInput.value : "";
     
-    // Use the Manager for filtering and sorting
-    displayedHistory = HistoryManager.filterAndSort(history, rawTerm);
+    // 1. Pass the activeFilter to your manager (We will upgrade the manager next!)
+    displayedHistory = HistoryManager.filterAndSort(history, rawTerm, activeFilter);
     
-    const itemCountEl = document.getElementById('itemCount');
-    if (itemCountEl) itemCountEl.textContent = displayedHistory.length;
+    // 2. THE NEW HEADER COUNT INJECTION
+    if (historyBox) {
+        const maxLimit = globalSettings.maxItems || (IS_PRO_BUILD ? 100 : 50);
+        historyBox.style.display = 'flex';
+        historyBox.style.justifyContent = 'space-between';
+        historyBox.style.alignItems = 'baseline';
+        historyBox.style.paddingRight = '40px'; // Clears the search button
+        
+        // Keeps the title Cyan, but makes the numbers gray/white
+        historyBox.innerHTML = `
+            <span>CLIP HISTORY</span>
+            <span style="font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 10px; color: var(--app-theme); opacity: 0.96; letter-spacing: 0.5px;">
+               ITEMS: ${displayedHistory.length}/${maxLimit} 
+            </span>
+        `;
+    }
     
     if (rawTerm.length > 0 && searchMeta && matchCount) {
         searchMeta.style.display = 'flex';
@@ -361,7 +395,7 @@ const renderList = (history) => {
             let sizeStr = "", smartActionHTML = '';
             
             // If the user manually unmasked it, force this to false
-            const isSecret = HistoryManager.isSecret(item);
+            const isSecret = HistoryManager.isSecret(item, globalSettings);
 
             if (item.type === 'image') {
     // If dimensions exist, show them. Otherwise fallback to "IMG" for older clips.
@@ -709,18 +743,21 @@ cancelBtn.onclick = (ev) => {
             
             // --- OPTIMISTIC DELETE ---
             const delBtn = li.querySelector('.del-btn');
-            if (delBtn) delBtn.onclick = (e) => { 
-                e.stopPropagation(); 
-                if (item.favorite) { Utils.showMsg("LOCKED!"); return; } 
-                
-                // Visually remove immediately for snappy UX
-                fullHistory = fullHistory.filter(h => h.timestamp !== item.timestamp);
-                selectedItems.delete(item.timestamp);
-                renderList(fullHistory);
-                
-                // Show Undo Option
-                showUndo(item);
-            };
+if (delBtn) delBtn.onclick = (e) => { 
+    e.stopPropagation(); 
+    if (item.favorite) { Utils.showMsg("LOCKED!"); return; } 
+
+    // 1. Tell the backend to delete it RIGHT NOW so it won't reappear on refresh
+    window.smartClip.deleteItem(item.timestamp);
+
+    // 2. Remove it visually
+    fullHistory = fullHistory.filter(h => h.timestamp !== item.timestamp);
+    renderList(fullHistory);
+
+    // 3. Update the toast to be a "Restore" option rather than an "Undo delete"
+    lastDeleted = item; 
+    showUndo(item); // Note: Update your Undo button to call 'restoreClip' instead
+};
 
             li.oncontextmenu = (e) => { 
                 if (li.classList.contains('editing')) return; 
@@ -833,6 +870,10 @@ window.smartClip.onRefreshSettings((settings) => {
             <span class="edition-label ${IS_PRO_BUILD ? 'pro' : 'core'}" style="position: absolute; left: 100%; top: 0; margin-left: 4px;">${IS_PRO_BUILD ? 'PRO' : 'CORE'}</span>
         </span>
     `;
+
+    if (ignoreColorsToggle) ignoreColorsToggle.checked = settings.ignoreColors === true;
+    if (moveDupesToggle) moveDupesToggle.checked = settings.moveDuplicates === true;
+    if (privacySelect) privacySelect.value = settings.privacyLevel || 'MED';
 }
     
 if (maxInput) {
@@ -883,11 +924,9 @@ if(modalYes) modalYes.onclick = () => { if (typeof currentConfirmAction === 'fun
 if (undoBtn) {
     undoBtn.onclick = () => { 
         if (lastDeleted) { 
-            clearTimeout(undoTimeout);
+            // Re-inject the item into the database
+            window.smartClip.restoreClip(lastDeleted);
             lastDeleted = null; 
-            
-            // Reload original state from backend 
-            window.smartClip.loadData(); 
             
             if(undoToast) {
                 undoToast.classList.remove('show'); 
@@ -1203,6 +1242,61 @@ UIManager.initDragAndDropUI(dropzone, async (file) => {
         }
     }
 });
+
+// --- QUICK FILTER LOGIC ---
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.onclick = (e) => {
+        // 1. Remove active class from all buttons
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        
+        // 2. Add active class to the clicked button
+        btn.classList.add('active');
+        
+        // 3. Update the state and refresh the list
+        activeFilter = btn.getAttribute('data-filter');
+        renderList(fullHistory);
+    };
+});
+
+// --- NEW: SMARTCLIP AUTOMATION LISTENERS ---
+const ignoreColorsToggle = document.getElementById('ignoreColorsToggle');
+const moveDupesToggle = document.getElementById('moveDupesToggle');
+const privacySelect = document.getElementById('privacyLevelSelect');
+
+if (ignoreColorsToggle) {
+    ignoreColorsToggle.onchange = () => {
+        window.smartClip.updateSettings({ ignoreColors: ignoreColorsToggle.checked });
+        globalSettings.ignoreColors = ignoreColorsToggle.checked;
+    };
+}
+
+if (moveDupesToggle) {
+    moveDupesToggle.onchange = () => {
+        window.smartClip.updateSettings({ moveDuplicates: moveDupesToggle.checked });
+        globalSettings.moveDuplicates = moveDupesToggle.checked;
+    };
+}
+
+if (privacySelect) {
+    privacySelect.onchange = () => {
+        const val = privacySelect.value;
+        window.smartClip.updateSettings({ privacyLevel: val });
+        globalSettings.privacyLevel = val;
+
+        const statusMsg = document.getElementById('sensitivityStatus');
+        const jokeTarget = document.getElementById('jokeEnding');
+
+        if (val === 'HIGH' && statusMsg && jokeTarget) {
+            // Pick a random joke from the state array
+            jokeTarget.textContent = tinFoilJokes[Math.floor(Math.random() * tinFoilJokes.length)];
+            statusMsg.style.display = 'block';
+        } else if (statusMsg) {
+            statusMsg.style.display = 'none';
+        }
+        
+        renderList(fullHistory);
+    };
+}
 
 // ==========================================================
 // --- GLOBAL SCOPE BRIDGE (FOR HTML ATTRIBUTES) ---

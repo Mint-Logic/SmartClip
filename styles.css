@@ -946,7 +946,7 @@ div[style*="border: 1px dashed #FF007F"] {
 #consoleBtn {
     position: absolute !important;
     right: 0 !important;
-    top: -3px !important; 
+    top: -1px !important; 
     
     /* Force the custom look with Cyan theme */
     background: rgba(11, 12, 14, 1) !important;
@@ -1014,4 +1014,31 @@ div[style*="border: 1px dashed #FF007F"] {
     0% { transform: scale(1); box-shadow: 0 0 0px var(--danger-match); }
     50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(231, 76, 60, 0.4); }
     100% { transform: scale(1); box-shadow: 0 0 0px var(--danger-match); }
+}
+
+/* --- FOOTER QUICK FILTERS --- */
+.filter-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-btn:hover {
+    color: var(--app-theme);
+    background: rgba(0, 229, 255, 0.05);
+}
+
+.filter-btn.active {
+    color: var(--app-theme);
+    border-color: rgba(0, 229, 255, 0.3);
+    background: rgba(0, 229, 255, 0.15);
+    box-shadow: inset 0 0 8px rgba(0, 229, 255, 0.1);
 }

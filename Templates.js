@@ -71,6 +71,14 @@ export const Templates = {
                 <div class="setting-group">
                     <div class="st-title">Application Behavior</div>
                     <div class="setting-row">
+    <div class="setting-label">UI Scale <div class="setting-desc">Adjust the overall size of the application text and interface.</div></div>
+    <select id="uiScaleSelect" style="background:#1e1e1e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:12px; cursor:pointer; outline:none;">
+    <option value="1">Normal (100%)</option>
+    <option value="1.15">Large (115%)</option>
+    <option value="1.25">Extra Large (125%)</option>
+</select>
+</div>
+                    <div class="setting-row">
                         <div class="setting-label">Always On Top <div class="setting-desc">Keep window floating above other apps.</div></div>
                         <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="alwaysOnTopToggle"><span class="slider"></span></label>
                     </div>
@@ -83,13 +91,14 @@ export const Templates = {
                         <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="guideTooltipToggle"><span class="slider"></span></label>
                     </div>
                     <div class="setting-row">
-    <div class="setting-label">UI Scale <div class="setting-desc">Adjust the overall size of the application text and interface.</div></div>
-    <select id="uiScaleSelect" style="background:#1e1e1e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:12px; cursor:pointer; outline:none;">
-    <option value="1">Normal (100%)</option>
-    <option value="1.15">Large (115%)</option>
-    <option value="1.25">Extra Large (125%)</option>
-</select>
-</div>
+            <div class="setting-label">Ignore Colors <div class="setting-desc">Don't capture hex codes (use HexStack instead).</div></div>
+            <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="ignoreColorsToggle"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+            <div class="setting-label">Move Duplicates <div class="setting-desc">Jump existing items to top instead of creating new ones.</div></div>
+            <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="moveDupesToggle"><span class="slider"></span></label>
+        </div>
+                    
                     <div class="setting-row">
                         <div class="setting-label">Launch on Startup <div class="setting-desc">Automatically run SmartClip when Windows starts.</div></div>
                         <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="startupToggle"><span class="slider"></span></label>
@@ -99,6 +108,27 @@ export const Templates = {
                         <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="autoCloseToggle"><span class="slider"></span></label>
                     </div>
                 </div>
+
+                <div class="setting-group">
+    <div class="st-title">Privacy & Security</div>
+    <div class="setting-row">
+        <div class="setting-label">
+            Sensitivity Level 
+            <div class="setting-desc">
+                Adjust how aggressively SmartClip masks potential secrets like API keys and tokens.
+            </div>
+        </div>
+        <select id="privacyLevelSelect" style="background:#1e1e1e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:12px; cursor:pointer; outline:none;">
+            <option value="LOW">Low (API Keys Only)</option>
+            <option value="MED">Medium (Recommended)</option>
+            <option value="HIGH">High (Tin Foil Hat Mode)</option>
+        </select>
+    </div>
+    <div id="sensitivityStatus" style="display: none; font-size: 10px; color: #FFD80D; margin-top: 8px; font-style: italic; opacity: 0.9; line-height: 1.4;">
+    <i class="fa-solid fa-user-secret"></i> <b>Warning:</b> Tin Foil Hat Mode is extremely paranoid and may mask anything it suspects of containing security keywords. 
+    <span id="jokeEnding">Best for those handling sensitive credentials, or for people who suspect their toaster is spying on them.</span>
+</div>
+</div>
                 <div class="setting-group">
                     <div class="st-title">Data Management</div>
                     <div class="setting-row">

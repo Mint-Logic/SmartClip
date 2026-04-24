@@ -302,6 +302,19 @@ async function processOCR(imagePath) {
 function saveClip(content, type = 'text', dimensions = null) {
     const history = db.get('history');
     const settings = db.get('settings');
+
+    // DUPLICATE COMPRESSION LOGIC
+    if (settings.moveDuplicates && type === 'text') {
+        const existingIndex = history.findIndex(i => i.text === content);
+        if (existingIndex > -1) {
+            const item = history.splice(existingIndex, 1)[0];
+            item.timestamp = Date.now(); // Refresh the time
+            history.unshift(item);
+            db.set('history', history);
+            if (window) window.webContents.send('refresh-data', history);
+            return;
+        }
+    }
     let limit = settings.maxItems || 100;
 
     // [SECURITY] Hard cap fallback if user manually tampers with the config file
@@ -448,8 +461,14 @@ function startMonitoring() {
 
             // Fall back to text if no image was found
             const text = clipboard.readText();
-            if (text && text.trim() !== '') {
-                if (text !== pendingText) {
+if (text && text.trim() !== '') {
+    const isColor = /^#([0-9A-F]{3}){1,2}$/i.test(text);
+    const settings = db.get('settings');
+    
+    // THE IGNORE FILTER
+    if (isColor && settings.ignoreColors) return; 
+
+    if (text !== pendingText) {
                     pendingText = text;
                     clearTimeout(debounceTimer);
                     debounceTimer = setTimeout(() => {

@@ -2,31 +2,97 @@
 import { PrivacyEngine } from './PrivacyEngine.js';
 
 export const HistoryManager = {
-    filterAndSort: (history, searchTerm) => {
-        const term = searchTerm.toLowerCase();
-        
-        const filtered = history.filter(item => {
-            if (!item || !item.text) return false; 
-            if (item.type === 'image') {
-                const matchesKeyword = term === 'image';
-                const matchesOCR = item.ocrText && item.ocrText.toLowerCase().includes(term);
-                return term === '' || matchesKeyword || matchesOCR;
+    filterAndSort: (history, rawTerm, filterType = 'ALL') => {
+        // 1. START WITH CATEGORY FILTERING
+        let processedList = [...history];
+
+        if (filterType === 'IMAGE') {
+            processedList = processedList.filter(item => item.type === 'image');
+        } else if (filterType === 'LINK') {
+            processedList = processedList.filter(item => item.isWeb === true);
+        } else if (filterType === 'COLOR') {
+            processedList = processedList.filter(item => item.isColor === true);
+        }
+
+        // 2. APPLY SEARCH FILTERING
+        if (rawTerm && rawTerm.trim().length > 0) {
+            const term = rawTerm.toLowerCase().trim();
+            processedList = processedList.filter(item => {
+                if (!item) return false;
+
+                // Check label first
+                if (item.label && item.label.toLowerCase().includes(term)) return true;
+                
+                // Search text content (masking secrets)
+                if (item.type === 'text') {
+                    if (HistoryManager.isSecret(item)) return false; 
+                    return item.text.toLowerCase().includes(term);
+                }
+                
+                // Search OCR text for images
+                if (item.type === 'image') {
+                    const matchesKeyword = term === 'image';
+                    const matchesOCR = item.ocrText && item.ocrText.toLowerCase().includes(term);
+                    return matchesKeyword || matchesOCR;
+                }
+                return false;
+            });
+        }
+
+        // 3. APPLY SORTING (Pinned First, then Newest)
+        return processedList.sort((a, b) => {
+            if (a.favorite === b.favorite) {
+                return b.timestamp - a.timestamp; 
             }
-            return item.text.toLowerCase().includes(term);
+            return a.favorite ? -1 : 1; 
         });
-        
-        // Sort: Favorites ALWAYS at the top
-        return filtered.sort((a, b) => (a.favorite === b.favorite) ? 0 : a.favorite ? -1 : 1);
     },
 
     getMatchStatus: (count) => {
         return count > 0 ? `1/${count}` : "0/0";
     },
 
-    isSecret: (item) => {
-    if (item.type !== 'text') return false;
-    if (item.unmasked) return false;
-    // Ensure PrivacyEngine is available
-    return (item.manualMask || PrivacyEngine.checkSensitivity(item.text));
-}
+    isSecret: (item, settings = {}) => {
+        if (item.type !== 'text' || item.unmasked) return false;
+        if (item.manualMask) return true;
+
+        const text = item.text;
+        const level = settings.privacyLevel || 'MED';
+        const spaceCount = (text.match(/ /g) || []).length;
+        
+        // --- THE DEV BYPASS ---
+        // If it looks like a block of code (contains functions, brackets, or multiple lines), 
+        // we let it through so you can actually read your work.
+        const isCode = /[{}[\]()=;]/.test(text) && text.length > 50;
+        if (isCode) return false;
+
+        const keywords = ['password', 'token', 'key', 'secret', 'auth', 'api'];
+        const hasKeyword = keywords.some(k => text.toLowerCase().includes(k));
+
+        // --- THE CALIBRATED BYPASS ---
+        if (spaceCount > 3) {
+            // High is only paranoid about sentences if they contain a keyword
+            if (level === 'HIGH' && hasKeyword) {
+                // Continue to masking check
+            } else {
+                return false; // Safe prose
+            }
+        }
+
+        // --- TIERED MASKING LOGIC ---
+        if (level === 'LOW') {
+            return PrivacyEngine.checkSensitivity(text, 'LOW');
+        }
+        if (level === 'MED') {
+            if (hasKeyword && (text.includes(':') || text.includes('='))) return true;
+            return PrivacyEngine.checkSensitivity(text, 'MED');
+        }
+        if (level === 'HIGH') {
+            if (hasKeyword) return true;
+            if (text.length < 25 && spaceCount === 0) return true;
+            return PrivacyEngine.checkSensitivity(text, 'HIGH');
+        }
+
+        return false;
+    }
 };
