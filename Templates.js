@@ -121,12 +121,12 @@ export const Templates = {
         <select id="privacyLevelSelect" style="background:#1e1e1e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:12px; cursor:pointer; outline:none;">
             <option value="LOW">Low (API Keys Only)</option>
             <option value="MED">Medium (Recommended)</option>
-            <option value="HIGH">High (Tin Foil Hat Mode)</option>
+            <option value="HIGH">High (Trust No One)</option>
         </select>
     </div>
     <div id="sensitivityStatus" style="display: none; font-size: 10px; color: #FFD80D; margin-top: 8px; font-style: italic; opacity: 0.9; line-height: 1.4;">
-    <i class="fa-solid fa-user-secret"></i> <b>Warning:</b> Tin Foil Hat Mode is extremely paranoid and may mask anything it suspects of containing security keywords. 
-    <span id="jokeEnding">Best for those handling sensitive credentials, or for people who suspect their toaster is spying on them.</span>
+    <i class="fa-solid fa-user-secret"></i> <b>Warning:</b> Trust No One Mode is extremely paranoid and may mask anything it suspects of containing security keywords. 
+    <span id="jokeEnding"> Best for users who have never shared their Netflix password or for those who communicate exclusively via dead-drops.</span>
 </div>
 </div>
                 <div class="setting-group">

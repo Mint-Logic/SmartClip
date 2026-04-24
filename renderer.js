@@ -28,19 +28,20 @@ let undoTimeout = null;
 let isUndoHovered = false;
 
 const tinFoilJokes = [
- "Best for those handling sensitive credentials, or for people who suspect their toaster is spying on them.",
+                "Best for users who have never shared their Netflix password or for those who communicate exclusively via dead-drops.",
+                "Best for those handling sensitive credentials, or for people who suspect their toaster is spying on them.",
                 "Best for high-security environments, or for users operating from inside a Faraday cage in an underground bunker.",
                 "Best for top-secret data, or for those convinced the neighbors are foreign intelligence operatives.",
-                "Best for security pros, or for anyone who thinks their microwave is reporting back to headquarters.",
+                "Best for cyber-security hobbyists, or for anyone who thinks their microwave is reporting back to headquarters.",
                 "Best for keeping secrets, or for people who cover their webcam with three layers of duct tape.",
-                "Best for privacy-obsessives, or for users who communicate exclusively via carrier pigeon.",
-                "Best for deep-cover agents, or for those who don't even trust their own shadow.",
-                "Best for protecting industrial secrets, or for people who think the Wi-Fi signal is telling them to buy more kale.",
+                "Best for deep-cover agents, or for users who communicate exclusively via carrier pigeon.",
+                "Best for protecting government secrets, or for people who think the Wi-Fi signal is telling them to buy more kale.",
                 "Best for sensitive assets, or for users who are convinced their neighbor’s cat is a government surveillance drone.",
                 "Best for classified data, or for people who keep their router in a lead-lined box 'just in case'.",
                 "Best for protecting the crown jewels, or for people who think their smart-fridge is judging their life choices.",
                 "Best for security purists, or for people who believe their Roomba is mapping their house for an upcoming alien invasion.",
-                "Best for protecting the nuclear launch codes, or for people who work at Area 51."
+                "Best for protecting the nuclear launch codes, or for people who work at Area 51.",
+                "Best for doomsday preppers, or for people who think The X-Files was a documentary."
             ];
 
 
