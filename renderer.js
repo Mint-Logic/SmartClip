@@ -40,7 +40,7 @@ const tinFoilJokes = [
                 "Best for classified data, or for people who keep their router in a lead-lined box 'just in case'.",
                 "Best for protecting the crown jewels, or for people who think their smart-fridge is judging their life choices.",
                 "Best for security purists, or for people who believe their Roomba is mapping their house for an upcoming alien invasion.",
-                "Best for protecting the nuclear launch codes, or for people who work at Area 51.",
+                "Best for protecting nuclear launch codes, or for people who work at Area 51.",
                 "Best for doomsday preppers, or for people who think The X-Files was a documentary."
             ];
 
