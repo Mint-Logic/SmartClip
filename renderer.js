@@ -396,7 +396,8 @@ const renderList = (history) => {
             let sizeStr = "", smartActionHTML = '';
             
             // If the user manually unmasked it, force this to false
-            const isSecret = HistoryManager.isSecret(item, globalSettings);
+            // renderer.js
+const isSecret = HistoryManager.isSecret(item, globalSettings, IS_PRO_BUILD);
 
             if (item.type === 'image') {
     // If dimensions exist, show them. Otherwise fallback to "IMG" for older clips.
@@ -1262,7 +1263,25 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 // --- NEW: SMARTCLIP AUTOMATION LISTENERS ---
 const ignoreColorsToggle = document.getElementById('ignoreColorsToggle');
 const moveDupesToggle = document.getElementById('moveDupesToggle');
-const privacySelect = document.getElementById('privacyLevelSelect');
+if (privacySelect) {
+    privacySelect.onchange = () => {
+        const val = privacySelect.value;
+        window.smartClip.updateSettings({ privacyLevel: val });
+        globalSettings.privacyLevel = val;
+
+        const statusMsg = document.getElementById('sensitivityStatus');
+        const jokeTarget = document.getElementById('jokeEnding');
+
+        if (val === 'HIGH' && statusMsg && jokeTarget) {
+            jokeTarget.textContent = tinFoilJokes[Math.floor(Math.random() * tinFoilJokes.length)];
+            statusMsg.style.display = 'block';
+        } else if (statusMsg) {
+            statusMsg.style.display = 'none';
+        }
+        
+        renderList(fullHistory);
+    };
+}
 
 if (ignoreColorsToggle) {
     ignoreColorsToggle.onchange = () => {

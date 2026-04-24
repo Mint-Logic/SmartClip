@@ -109,7 +109,8 @@ export const Templates = {
                     </div>
                 </div>
 
-                <div class="setting-group">
+                ${isPro ? `
+<div class="setting-group">
     <div class="st-title">Privacy & Security</div>
     <div class="setting-row">
         <div class="setting-label">
@@ -125,10 +126,11 @@ export const Templates = {
         </select>
     </div>
     <div id="sensitivityStatus" style="display: none; font-size: 10px; color: #FFD80D; margin-top: 8px; font-style: italic; opacity: 0.9; line-height: 1.4;">
-    <i class="fa-solid fa-user-secret"></i> <b>Warning:</b> Trust No One Mode is extremely paranoid and may mask anything it suspects of containing security keywords. 
-    <span id="jokeEnding"> Best for users who have never shared their Netflix password or for those who communicate exclusively via dead-drops.</span>
+        <i class="fa-solid fa-user-secret"></i> <b>Warning:</b> Trust No One Mode is extremely paranoid and may mask anything it suspects of containing security keywords. 
+        <span id="jokeEnding"></span>
+    </div>
 </div>
-</div>
+` : ''}
                 <div class="setting-group">
                     <div class="st-title">Data Management</div>
                     <div class="setting-row">
@@ -162,32 +164,29 @@ export const Templates = {
             </div>
           
             ${isPro ? `
-            <div id="guide-pro" class="tab-pane">
-                <div class="setting-group">
-                    <div class="st-title">Pro Utility Suite</div>
-                    <div class="g-grid">
-                        <div class="g-item" style="grid-column: 1 / -1;">
-                            <strong><i class="fa-solid fa-shield-halved"></i> Sensitive Data Guard</strong>
-                            Pro automatically detects API keys, tokens, and passwords in your history and masks them with a secure "••••" overlay.
-                        <div style="margin-top: 8px; font-size: 11px; border-top: 1px dashed var(--brdr); padding-top: 6px;">
-                                <b style="color: var(--app-theme);">Overrides:</b> Right-click any snippet and select <i>"Secure Item"</i> to manually mask missed secrets. Falsely masked? Click the lock icon on the snippet to unmask it.
-                            </div>
-                        </div>
-                        <div class="g-item">
-                            <strong><i class="fa-solid fa-database"></i> HDD Persistence</strong>
-                            Your clipboard history is now saved to your local drive. Your clips will be waiting for you even after a system reboot.
-                        </div>
-                        <div class="g-item">
-                            <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Smart Transforms</strong>
-                            Use the "Magic" button on any text clip to instantly convert it to <b>CamelCase</b>, <b>URL-Slugs</b>, or <b>Cleaned Text</b>.
-                        </div>
-                        <div class="g-item" style="grid-column: 1 / -1;">
-                            <strong><i class="fa-solid fa-file-export"></i> Bulk Export</strong>
-                            Select multiple clips using the checkboxes on the left and hit <b>Export</b> to save your research as a single .txt file.
-                        </div>
-                    </div>
-                </div>
-            </div>` : ''}
+<div id="guide-pro" class="tab-pane">
+    <div class="setting-group">
+        <div class="st-title">Pro Utility Suite</div>
+        <div class="g-grid">
+            <div class="g-item" style="grid-column: 1 / -1;">
+                <strong><i class="fa-solid fa-brain"></i> Developer "Prose Bypass"</strong>
+                SmartClip Pro is smart enough to distinguish between code and credentials. It automatically bypasses masking for code blocks (brackets, semicolons, etc.) so your dev workflow stays readable while your secrets stay hidden.
+            </div>
+            <div class="g-item">
+                <strong><i class="fa-solid fa-user-secret"></i> Trust No One Mode</strong>
+                Unlock high-sensitivity heuristics that aggressively mask anything resembling a secret, even in short snippets or casual prose.
+            </div>
+            <div class="g-item">
+                <strong><i class="fa-solid fa-file-export"></i> Professional Export</strong>
+                Export your research and snippets into consolidated <b>.TXT</b>, <b>.CSS</b>, or <b>.JSON</b> files for easy integration into your projects.
+            </div>
+            <div class="g-item" style="grid-column: 1 / -1;">
+                <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Smart Transforms</strong>
+                Instantly convert any text snippet into <b>CamelCase</b>, <b>URL-Slugs</b>, or <b>Cleaned</b> versions via the "Magic" button.
+            </div>
+        </div>
+    </div>
+</div>` : ''}
             <div id="guide-hotkeys" class="tab-pane">
                 <div class="st-title" style="margin-top: 0;">System Shortcuts</div>
                 <div class="g-grid" style="grid-template-columns: 1fr; gap: 8px;">

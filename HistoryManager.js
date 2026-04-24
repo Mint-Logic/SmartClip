@@ -52,19 +52,23 @@ export const HistoryManager = {
         return count > 0 ? `1/${count}` : "0/0";
     },
 
-    isSecret: (item, settings = {}) => {
-        if (item.type !== 'text' || item.unmasked) return false;
-        if (item.manualMask) return true;
+    isSecret: (item, settings = {}, isPro = false) => {
+    if (item.type !== 'text' || item.unmasked) return false;
+    if (item.manualMask) return true;
 
-        const text = item.text;
-        const level = settings.privacyLevel || 'MED';
-        const spaceCount = (text.match(/ /g) || []).length;
-        
-        // --- THE DEV BYPASS ---
-        // If it looks like a block of code (contains functions, brackets, or multiple lines), 
-        // we let it through so you can actually read your work.
+    const text = item.text;
+    
+    // THE CORE VS PRO ENFORCEMENT
+    // Core is locked to 'MED'. Pro can access 'LOW' or 'HIGH'.
+    const level = isPro ? (settings.privacyLevel || 'MED') : 'MED';
+    
+    const spaceCount = (text.match(/ /g) || []).length;
+    
+    // Developer Prose Bypass (Only active for Pro users)
+    if (isPro) {
         const isCode = /[{}[\]()=;]/.test(text) && text.length > 50;
         if (isCode) return false;
+    }
 
         const keywords = ['password', 'token', 'key', 'secret', 'auth', 'api'];
         const hasKeyword = keywords.some(k => text.toLowerCase().includes(k));
