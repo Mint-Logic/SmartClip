@@ -26,6 +26,7 @@ async function initializeLicense() {
         const licenseStatus = await licenseMgr.loadLicense('SmartClip'); // <-- CHANGED TO loadLicense
         if (licenseStatus && licenseStatus.valid) {
             IS_PRO_BUILD = true;
+            REAL_PRO_STATUS = true;
             console.log(`[LICENSE] SmartClip Hardware Verified: Pro Active`);
         } else {
             IS_PRO_BUILD = false;
@@ -202,6 +203,14 @@ function initializeApp() {
         window.setWindowButtonVisibility?.(false); 
     }
 
+    // Safely intercept Ctrl+Shift+I OR F12 only when SmartClip is actively focused
+    window.webContents.on('before-input-event', (event, input) => {
+        if ((input.control && input.shift && input.key.toLowerCase() === 'i') || input.key === 'F12') {
+            event.preventDefault();
+            window.webContents.openDevTools({mode: 'detach'});
+        }
+    });
+
         window.loadFile('index.html');
         
         window.webContents.on('did-finish-load', () => {
@@ -228,6 +237,13 @@ function initializeApp() {
         // Ensure tray is ready so they can actually find the app
         if (!tray) createTray(); 
     }
+});
+
+// Force a recalculation when the window size changes (like closing DevTools)
+window.addEventListener('resize', () => {
+    // Reset scroll positions that DevTools might have messed up
+    document.documentElement.scrollTop = 0;
+    updateWindowHeight();
 });
 
         // Updated to save the actual dynamic width!
@@ -544,7 +560,7 @@ if (text && text.trim() !== '') {
         createWindow(); 
         createTray();
         globalShortcut.register('CommandOrControl+Shift+Space', toggleWindow);
-        globalShortcut.register('F12', () => { if(window) window.webContents.openDevTools({mode:'detach'}); });
+       
         startMonitoring();
     });
 

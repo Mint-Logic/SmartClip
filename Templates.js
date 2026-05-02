@@ -121,7 +121,7 @@ export const Templates = {
         </div>
         <select id="privacyLevelSelect" style="background:#1e1e1e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:12px; cursor:pointer; outline:none;">
             <option value="LOW">Low (API Keys Only)</option>
-            <option value="MED">Medium (Recommended)</option>
+            <option value="MED" selected>Medium (Recommended)</option>
             <option value="HIGH">High (Trust No One)</option>
         </select>
     </div>

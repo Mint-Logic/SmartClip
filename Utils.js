@@ -52,6 +52,13 @@ export const Utils = {
         let res = text;
         if (type === 'upper') res = text.toUpperCase();
         if (type === 'lower') res = text.toLowerCase();
+        if (type === 'sentence') { 
+            let lowerText = text.toLowerCase();
+            // Added \b[i]\b to the regex to catch the standalone letter "i"
+            res = lowerText.replace(/(^\s*\w|[\.\!\?]\s*\w|\b[i]\b)/g, function(match) {
+                return match.toUpperCase();
+            });
+        }
         if (type === 'clean') res = text.replace(/\s+/g, ''); // Removes ALL whitespace
         if (type === 'slugify') res = text.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
         if (type === 'camel') res = text.toLowerCase().trim().split(/[_\s-]+/).map((w, i) => i === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1)).join('');

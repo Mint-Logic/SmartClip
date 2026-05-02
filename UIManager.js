@@ -61,7 +61,8 @@ export const UIManager = {
     createTransformMenu: () => {
         const tfMenu = document.createElement('div');
         tfMenu.id = 'transform-menu';
-        tfMenu.style.cssText = `display: none; position: fixed; z-index: 20001; background: rgba(26, 31, 36, 0.95); backdrop-filter: blur(4px); border: 1px solid rgba(0, 188, 212, 0.3); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.6); padding: 3px; gap: 3px; flex-direction: row; white-space: nowrap;`;
+        // Updated border to mint, and added a layered box-shadow (dark drop shadow + mint outer glow)
+        tfMenu.style.cssText = `display: none; position: fixed; z-index: 20001; background: rgba(26, 31, 36, 0.95); backdrop-filter: blur(4px); border: 1px solid rgba(0, 188, 212, 0.3); border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.6), 0 0 12px rgba(140, 250, 150, 0.25); padding: 3px; gap: 3px; flex-direction: row; white-space: nowrap;`;
         document.body.appendChild(tfMenu);
         return tfMenu;
     },

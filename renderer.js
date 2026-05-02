@@ -54,6 +54,9 @@ const btnActivate = document.getElementById('btnActivate');
 
 if (helpModal) helpModal.innerHTML = Templates.getAboutHtml(IS_PRO_BUILD, IS_DEV);
 const uiScaleSelect = document.getElementById('uiScaleSelect');
+const privacySelect = document.getElementById('privacyLevelSelect');
+const ignoreColorsToggle = document.getElementById('ignoreColorsToggle');
+const moveDupesToggle = document.getElementById('moveDupesToggle');
 const clipHeader = document.querySelector('.clip-history-header'); 
 const notifyToggle = document.getElementById('notifyToggle');
 const timeToggle = document.getElementById('timeToggle');
@@ -158,6 +161,9 @@ const updateWindowHeight = Utils.debounce((args = null) => {
 
     // 3. THE SAFETY LOCK: Stop redundant IPC spam!
     if (finalHeight === lastSetHeight && currentLayout === lastSetLayout) {
+        // THE FIX: Even if the window didn't resize, DevTools might have secretly scrolled the body. Force it back.
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
         return; 
     }
     lastSetHeight = finalHeight;
@@ -176,6 +182,10 @@ const updateWindowHeight = Utils.debounce((args = null) => {
     if (contentContainer) {
         contentContainer.style.overflowY = finalHeight >= maxHeight ? 'auto' : 'hidden';
     }
+
+    // THE FIX: Force the body back to the top just in case the Chromium engine shoved it down
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
 }, 50);
 
 // --- TRANSFORM MENU ---
@@ -279,6 +289,12 @@ const handleCopy = (item) => {
         }, 250); 
     }
 };
+
+window.addEventListener('resize', () => {
+    // Reset the body scroll position which DevTools often shifts
+    document.documentElement.scrollTop = 0;
+    updateWindowHeight();
+});
 
 const showConfirm = (text, action) => {
     if(modalMsg) modalMsg.textContent = text;
@@ -411,7 +427,7 @@ const isSecret = HistoryManager.isSecret(item, globalSettings, IS_PRO_BUILD);
     }
 } else {
                 sizeStr = Utils.formatBytes(item.text);
-                if (item.isWeb) smartActionHTML += `<button class="smart-tag" onclick="window.open('${item.text}', '_blank'); event.stopPropagation();"><i class="fa-solid fa-arrow-up-right-from-square"></i> OPEN</button>`;
+                if (item.isWeb) smartActionHTML += `<button class="smart-tag" onclick="window.smartClip.openExternal('${item.text}'); event.stopPropagation();"><i class="fa-solid fa-arrow-up-right-from-square"></i> OPEN</button>`;
                 if (item.isColor) {
                     const contrast = Utils.getContrastYIQ(item.text);
                     smartActionHTML += `<div class="smart-tag" style="background:${item.text}; color:${contrast}; border:1px solid #fff;">${item.text}</div>`;
@@ -607,6 +623,7 @@ if (smartImgBadge) {
     const transforms = [ 
         { label: 'UPPER', type: 'upper' }, 
         { label: 'lower', type: 'lower' }, 
+        { label: 'Sentence', type: 'sentence' }, 
         { label: '-slugify-', type: 'slugify' }, 
         { label: 'camelCase', type: 'camel' }, 
         { label: 'Clean', type: 'clean' } 
@@ -620,7 +637,7 @@ if (smartImgBadge) {
         width: 4px; 
         height: 4px; 
         background-color: #8CFA96; 
-        margin: auto 4px; 
+        margin: auto 1px; 
         border-radius: 1px;
         box-shadow: 0 0 4px #8CFA96, 0 0 8px rgba(140, 250, 150, 0.5);
     `;
@@ -661,10 +678,11 @@ tfMenu.appendChild(btn);
 
     const rect = magicBtn.getBoundingClientRect();
     tfMenu.style.top = `${rect.bottom + 8}px`;
-    tfMenu.style.left = `${Math.min(rect.left, window.innerWidth - 290)}px`;
     tfMenu.classList.remove('tf-menu-close'); 
     tfMenu.classList.add('tf-menu-open'); 
     tfMenu.style.display = 'flex';
+    // Perfectly center it based on the exact app window width
+    tfMenu.style.left = `${((window.innerWidth - tfMenu.offsetWidth) / 2) - 4}px`;
 };
                     }
                     
@@ -874,9 +892,23 @@ window.smartClip.onRefreshSettings((settings) => {
     `;
 
     if (ignoreColorsToggle) ignoreColorsToggle.checked = settings.ignoreColors === true;
-    if (moveDupesToggle) moveDupesToggle.checked = settings.moveDuplicates === true;
-    if (privacySelect) privacySelect.value = settings.privacyLevel || 'MED';
-}
+        if (moveDupesToggle) moveDupesToggle.checked = settings.moveDuplicates === true;
+        
+        if (privacySelect) {
+            const val = settings.privacyLevel || 'MED';
+            privacySelect.value = val;
+            
+            const statusMsg = document.getElementById('sensitivityStatus');
+            const jokeTarget = document.getElementById('jokeEnding');
+
+            if (val === 'HIGH' && statusMsg && jokeTarget) {
+                jokeTarget.textContent = tinFoilJokes[Math.floor(Math.random() * tinFoilJokes.length)];
+                statusMsg.style.display = 'block';
+            } else if (statusMsg) {
+                statusMsg.style.display = 'none';
+            }
+        }
+    }
     
 if (maxInput) {
         maxInput.disabled = false;
@@ -1259,8 +1291,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 });
 
 // --- NEW: SMARTCLIP AUTOMATION LISTENERS ---
-const ignoreColorsToggle = document.getElementById('ignoreColorsToggle');
-const moveDupesToggle = document.getElementById('moveDupesToggle');
+
 if (privacySelect) {
     privacySelect.onchange = () => {
         const val = privacySelect.value;
@@ -1292,27 +1323,6 @@ if (moveDupesToggle) {
     moveDupesToggle.onchange = () => {
         window.smartClip.updateSettings({ moveDuplicates: moveDupesToggle.checked });
         globalSettings.moveDuplicates = moveDupesToggle.checked;
-    };
-}
-
-if (privacySelect) {
-    privacySelect.onchange = () => {
-        const val = privacySelect.value;
-        window.smartClip.updateSettings({ privacyLevel: val });
-        globalSettings.privacyLevel = val;
-
-        const statusMsg = document.getElementById('sensitivityStatus');
-        const jokeTarget = document.getElementById('jokeEnding');
-
-        if (val === 'HIGH' && statusMsg && jokeTarget) {
-            // Pick a random joke from the state array
-            jokeTarget.textContent = tinFoilJokes[Math.floor(Math.random() * tinFoilJokes.length)];
-            statusMsg.style.display = 'block';
-        } else if (statusMsg) {
-            statusMsg.style.display = 'none';
-        }
-        
-        renderList(fullHistory);
     };
 }
 
