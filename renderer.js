@@ -1127,8 +1127,6 @@ if (window.smartClip && window.smartClip.onLicenseResponse) {
                 contentArea.style.boxShadow = '0 0 50px rgba(140, 250, 150, 0.8), inset 0 0 30px rgba(140, 250, 150, 0.5)';
             }
 
-            // 4. Force the UI restart to apply the Pro layout
-            setTimeout(() => window.location.reload(), 1500);
         } else {
             // The rejection toast
             Utils.showMsg("ERROR: " + (response.reason || "Invalid Key"));

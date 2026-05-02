@@ -204,7 +204,7 @@ function initializeApp() {
 
         window.loadFile('index.html');
         
-        window.webContents.once('did-finish-load', () => {
+        window.webContents.on('did-finish-load', () => {
     // Safety net to ensure zoom sticks after full load
     window.webContents.setZoomFactor(savedScale);
     
@@ -577,7 +577,7 @@ if (text && text.trim() !== '') {
 
     ipcMain.on('dev-mode-toggle', (event, shouldBeCore) => {
         IS_PRO_BUILD = shouldBeCore ? false : REAL_PRO_STATUS; 
-        if (window) window.reload();
+        if (window && !window.isDestroyed()) window.webContents.reload();
     });
 
     ipcMain.on('set-ui-zoom', (event, factor) => {
@@ -668,8 +668,9 @@ ipcMain.on('validate-license', async (event, payload) => {
             IS_PRO_BUILD = true;
             REAL_PRO_STATUS = true; // Updates your specific dev toggle anchor
             event.reply('license-response', { success: true, owner: rawData.owner });
-            setTimeout(() => { if (window) window.reload(); }, 1500);
-        } else {
+            setTimeout(() => { if (window && !window.isDestroyed()) window.webContents.reload(); }, 1500);
+        }
+         else {
             event.reply('license-response', { success: false, reason: "Local Windows OS Encryption failed." });
         }
 
