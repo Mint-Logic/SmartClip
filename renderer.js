@@ -290,10 +290,15 @@ const handleCopy = (item) => {
     }
 };
 
-window.addEventListener('resize', () => {
-    // Reset the body scroll position which DevTools often shifts
-    document.documentElement.scrollTop = 0;
-    updateWindowHeight();
+window.addEventListener('resize', (e) => {
+       requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            // Reset scroll to prevent DevTools from shoving the body up
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            updateWindowHeight(e);
+        });
+    });
 });
 
 const showConfirm = (text, action) => {
@@ -1173,16 +1178,34 @@ if (window.smartClip && window.smartClip.onLicenseResponse) {
 // ==========================================
 // --- DEVELOPER OVERRIDE WIRING ---
 // ==========================================
-const devCoreToggle = document.getElementById('devCoreToggle');
-if (devCoreToggle) {
-    const isActuallyPro = window.smartClip.getIsProSync();
-    devCoreToggle.checked = !isActuallyPro; 
 
-    devCoreToggle.onchange = () => {
-        const shouldBeCore = devCoreToggle.checked;
+// 1. Event Delegation: Listens on the document so it survives DOM re-renders 
+// (Works perfectly even if Templates.js destroys and recreates the HTML)
+document.addEventListener('change', (e) => {
+    if (e.target && e.target.id === 'devCoreToggle') {
+        const shouldBeCore = e.target.checked;
         window.smartClip.devModeToggle(shouldBeCore);
-    };
-}
+    }
+});
+
+// 2. Visual Sync: Ensures the toggle matches the actual backend state when the modal opens
+const syncDevToggle = () => {
+    // We only bother syncing if we are actually in the dev environment
+    if (!IS_DEV) return; 
+    
+    requestAnimationFrame(() => {
+        const devCoreToggle = document.getElementById('devCoreToggle');
+        if (devCoreToggle) {
+            const isActuallyPro = window.smartClip.getIsProSync();
+            devCoreToggle.checked = !isActuallyPro; 
+        }
+    });
+};
+
+// 3. Bind the sync to the buttons that open your settings/help modals
+if (settingsBtn) settingsBtn.addEventListener('click', syncDevToggle);
+const consoleBtnEl = document.getElementById('consoleBtn');
+if (consoleBtnEl) consoleBtnEl.addEventListener('click', syncDevToggle);
 
 // --- UPDATED SETTINGS BUTTONS (SMARTCLIP) ---
 const btnCheckUpd = document.getElementById('btnCheckUpdates') || document.getElementById('btn-check-updates');

@@ -26,7 +26,7 @@ async function initializeLicense() {
         const licenseStatus = await licenseMgr.loadLicense('SmartClip'); // <-- CHANGED TO loadLicense
         if (licenseStatus && licenseStatus.valid) {
             IS_PRO_BUILD = true;
-            REAL_PRO_STATUS = true;
+            REAL_PRO_STATUS = true; // <-- THE FIX: Anchor the truth after checking the drive!
             console.log(`[LICENSE] SmartClip Hardware Verified: Pro Active`);
         } else {
             IS_PRO_BUILD = false;
@@ -208,6 +208,17 @@ function initializeApp() {
         if ((input.control && input.shift && input.key.toLowerCase() === 'i') || input.key === 'F12') {
             event.preventDefault();
             window.webContents.openDevTools({mode: 'detach'});
+        }
+    });
+
+    window.webContents.on('devtools-closed', () => {
+        if (window && !window.isDestroyed()) {
+            // Toggling opacity by 1% forces Chromium to dump the 
+            // compositor cache and resync with the Windows DWM surface.
+            window.setOpacity(0.99);
+            setTimeout(() => {
+                window.setOpacity(1.0);
+            }, 50);
         }
     });
 
@@ -587,9 +598,14 @@ if (text && text.trim() !== '') {
 
     // --- DEVELOPER UI CHANNELS ---
     ipcMain.on('get-is-dev-sync', (e) => { 
-        // Public behavior: Hides dev toggle in compiled app, shows it in npm start
-        e.returnValue = !app.isPackaged; 
-    });
+    // A bulletproof check: Looks at isPackaged, Node environments, and Electron's default app state
+    const isActuallyDev = !app.isPackaged || 
+                          process.env.NODE_ENV === 'development' || 
+                          process.defaultApp || 
+                          process.argv.indexOf('--inspect') !== -1;
+                          
+    e.returnValue = isActuallyDev; 
+});
 
     ipcMain.on('dev-mode-toggle', (event, shouldBeCore) => {
         IS_PRO_BUILD = shouldBeCore ? false : REAL_PRO_STATUS; 

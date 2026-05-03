@@ -37,22 +37,41 @@ body {
     font-family: 'Segoe UI', sans-serif; 
     display: flex; 
     flex-direction: column; 
-    height: 100%; 
-    min-height: 100%;
+    
+    /* You can safely revert this back to 100vh now that the GPU lock is gone */
+    height: 100vh; 
+    
     width: 100%; 
-    box-sizing: border-box; /* Keeps the 1px border strictly inside the window */
+    box-sizing: border-box;
     overflow: hidden; 
     border: 1px solid var(--brdr); 
     border-radius: 10px;
     -webkit-app-region: no-drag; 
     position: relative;
+
     /* --- THE FLICKER FIXES --- */
-    /* 1. Forces the body into its own GPU layer */
-    transform: translateZ(0); 
-    /* 2. Prevents the GPU from calculating the back of the layer */
-    backface-visibility: hidden; 
-    /* 3. Smooths out sub-pixel rendering during redraws */
+    /* Removed translateZ and backface-visibility from here */
     -webkit-font-smoothing: antialiased; 
+}
+
+/* --- CONTENT AREA --- */
+.content { 
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    overflow-y: hidden; 
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column;
+    margin: 0 !important;
+    min-height: 0;
+    -webkit-app-region: no-drag;
+    
+    /* --- DARK GRAY GLASS BACKGROUND --- */
+    background: rgba(26, 31, 36, .95); 
+    
+    /* Move the GPU acceleration ONLY to the scrolling container */
+    transform: translateZ(0); 
+    will-change: transform, scroll-position;
 }
 
 /* [UI FIX] Remove buggy orange focus ring */
