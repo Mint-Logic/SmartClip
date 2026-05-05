@@ -822,9 +822,41 @@ if (newSettings.uiScale !== undefined && window) {
     ipcMain.on('download-history', async (event, selectedIds) => {
         const history = db.get('history');
         const items = selectedIds.length ? history.filter(i => selectedIds.includes(i.timestamp)) : history;
-        const content = items.map(i => i.text).join('\n---\n');
-        const { filePath } = await dialog.showSaveDialog(window, { defaultPath: 'SmartClip_Export.txt' });
-        if (filePath) { fs.writeFileSync(filePath, content); logToUI(`Exported ${items.length} items.`); }
+        
+        // 1. Tell the OS to offer specific file formats
+        const { filePath } = await dialog.showSaveDialog(window, { 
+            defaultPath: 'SmartClip_Export',
+            filters: [
+                { name: 'Text Document', extensions: ['txt'] },
+                { name: 'JSON Data', extensions: ['json'] },
+                { name: 'CSS Stylesheet', extensions: ['css'] }
+            ]
+        });
+
+        if (filePath) { 
+            let content = "";
+            
+            // 2. Format the output based on the user's chosen file type
+            if (filePath.toLowerCase().endsWith('.json')) {
+                // Extract just the text values and format as a clean JSON array
+                content = JSON.stringify(items.map(i => i.text), null, 2);
+            } else if (filePath.toLowerCase().endsWith('.css')) {
+                // Wrap the stacked items in a :root block for valid CSS syntax
+                const cssLines = items.map(i => `    ${i.text}`).join('\n');
+                content = `:root {\n${cssLines}\n}`;
+            } else {
+                // Standard TXT format with visual separators
+                content = items.map(i => i.text).join('\n---\n');
+            }
+            
+            try {
+                fs.writeFileSync(filePath, content); 
+                logToUI(`Exported ${items.length} items.`); 
+            } catch (err) {
+                console.error("Export failed:", err);
+                logToUI("[ERROR] Export Failed");
+            }
+        }
     });
 
     // THE FIX: Sync the exact variables the monitor uses

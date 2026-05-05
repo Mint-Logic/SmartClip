@@ -54,12 +54,38 @@ export const Utils = {
         if (type === 'lower') res = text.toLowerCase();
         if (type === 'sentence') { 
             let lowerText = text.toLowerCase();
-            // Added \b[i]\b to the regex to catch the standalone letter "i"
             res = lowerText.replace(/(^\s*\w|[\.\!\?]\s*\w|\b[i]\b)/g, function(match) {
                 return match.toUpperCase();
             });
         }
-        if (type === 'clean') res = text.replace(/\s+/g, ''); // Removes ALL whitespace
+        
+        // --- NEW URL SANITIZER (Replaces old whitespace cleaner) ---
+        if (type === 'clean') { 
+            try {
+                // Only sanitize if it's a URL, otherwise fallback to original behavior
+                if (text.trim().startsWith('http')) {
+                    const url = new URL(text.trim());
+                    const params = new URLSearchParams(url.search);
+                    
+                    // List of common tracking junk to strip for the demo
+                    const blacklist = [
+                        'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+                        'ref', 'click_id', 'fbclid', 'gclid', 'session', 'affiliate', 'ncid'
+                    ];
+                    
+                    blacklist.forEach(param => params.delete(param));
+                    url.search = params.toString();
+                    
+                    // Clean up trailing slashes or empty '?' marks
+                    res = url.toString().replace(/\/$/, "").replace(/\?$/, "");
+                } else {
+                    res = text.replace(/\s+/g, ''); // Keep whitespace cleaning for non-URLs
+                }
+            } catch (e) {
+                res = text.replace(/\s+/g, ''); 
+            }
+        }
+        
         if (type === 'slugify') res = text.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-');
         if (type === 'camel') res = text.toLowerCase().trim().split(/[_\s-]+/).map((w, i) => i === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1)).join('');
         return res;

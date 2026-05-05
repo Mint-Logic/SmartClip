@@ -631,7 +631,7 @@ if (smartImgBadge) {
         { label: 'Sentence', type: 'sentence' }, 
         { label: '-slugify-', type: 'slugify' }, 
         { label: 'camelCase', type: 'camel' }, 
-        { label: 'Clean', type: 'clean' } 
+        { label: 'Clean URL', type: 'clean' } 
     ];
 
     transforms.forEach((t, index) => {
@@ -687,7 +687,7 @@ tfMenu.appendChild(btn);
     tfMenu.classList.add('tf-menu-open'); 
     tfMenu.style.display = 'flex';
     // Perfectly center it based on the exact app window width
-    tfMenu.style.left = `${((window.innerWidth - tfMenu.offsetWidth) / 2) - 4}px`;
+    tfMenu.style.left = `${((window.innerWidth - tfMenu.offsetWidth) / 2) - 0}px`;
 };
                     }
                     

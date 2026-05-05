@@ -27,8 +27,8 @@ export const PrivacyEngine = {
     // 0: Credit Cards (Luhn check handled later)
     /\b(?:\d[ -]*?){13,19}\b/, 
     
-    // 1: Standalone Passwords (6-64 chars, requires Upper, Lower, and Number, expanded special chars)
-    /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&#^_\-+=.]{6,64}/, 
+    // 1: Standalone Passwords (6-64 chars, requires Upper, Lower, Number. Bounded to single words)
+/(?=[^\s]*[a-z])(?=[^\s]*[A-Z])(?=[^\s]*\d)[A-Za-z\d@$!%*?&#^_\-+=.]{6,64}/,
     
     // 2: Contextual Passwords/Tokens (e.g. "password: mySecretPassword123")
     /\b(?:api_key|apikey|token|secret|password|passwd|auth_token)\b\s*[:=]\s*(?:["']?)(\S{5,})(?:["']?)/i 
