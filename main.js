@@ -6,7 +6,6 @@ const licenseMgr = require('./licenseManager');
 const { machineIdSync } = require('node-machine-id');
 
 
-
 // --- THE FLICKER FIX ---
 app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 // app.disableHardwareAcceleration();
