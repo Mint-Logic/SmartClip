@@ -155,10 +155,33 @@ export const Templates = {
                 <div class="setting-group">
                     <div class="st-title">Capture & Management</div>
                     <div class="g-grid">
-                        <div class="g-item"><strong><i class="fa-solid fa-copy"></i> Auto-Capture</strong> Anything you copy to your system clipboard (Ctrl+C) is automatically intercepted and saved to your SmartClip history stack.</div>
-                        <div class="g-item"><strong><i class="fa-solid fa-paste"></i> Instant Paste</strong> Clicking the main text of any clip will instantly copy it back to your active clipboard so you can paste it anywhere.</div>
-                        <div class="g-item" ${!isPro ? 'style="grid-column: 1 / -1;"' : ''}><strong><i class="fa-solid fa-star"></i> Pinning & Deletion</strong> Click the star icon to permanently protect a snippet from being overwritten. Click the Trash icon to delete, or use "Clear All" for unpinned clips.</div>
-                        ${isPro ? `<div class="g-item"><strong><i class="fa-solid fa-terminal"></i> Terminal Recovery</strong> Accidentally deleted a clip? Open the System Terminal Log via the gear icon. Click any entry to instantly recover it.</div><div class="g-item" style="grid-column: 1 / -1;"><strong><i class="fa-solid fa-check-double"></i> Batch Exporting</strong> Use the checkboxes on the left to select multiple snippets, then click "Export" to save them as a consolidated .TXT file.</div>` : ''}
+                        <div class="g-item">
+                            <strong><i class="fa-solid fa-clipboard-check"></i> Background Capture</strong>
+                            SmartClip runs silently in your system tray, capturing your clipboard history automatically. Just copy text, links, or images as you normally would.
+                        </div>
+                        <div class="g-item">
+                            <strong><i class="fa-solid fa-magnifying-glass"></i> Deep-Search & OCR</strong>
+                            Press <span class="k-badge">S</span> to focus the search bar. SmartClip doesn't just search text; its OCR engine indexes the content *inside* your copied images for instant retrieval.
+                        </div>
+                        <div class="g-item" style="grid-column: 1 / -1;">
+                            <strong><i class="fa-solid fa-arrows-up-down"></i> Smart Navigation</strong>
+                            Use the <span class="k-badge">↑</span> <span class="k-badge">↓</span> arrows to browse your clipboard history. The app will automatically scroll to keep your selection in view.
+                        </div>
+                        
+                        ${isPro ? `
+                        <div class="g-item">
+                            <strong><i class="fa-solid fa-shield-halved"></i> Privacy Heuristics</strong>
+                            Pro automatically detects and masks sensitive data (like Credit Cards or AWS Cloud Keys) in your history to prevent accidental exposure on screen.
+                        </div>
+                        <div class="g-item">
+                            <strong><i class="fa-solid fa-link-slash"></i> URL Sanitization</strong>
+                            When copying links, SmartClip can automatically strip away tracking parameters (utm_source, ref, etc.) so you only paste clean URLs.
+                        </div>
+                        <div class="g-item" style="grid-column: 1 / -1;">
+                            <strong><i class="fa-solid fa-database"></i> Persistence & Export</strong>
+                            Your history is safely stored in a local JSON database. Select multiple snippets to perform a Bulk Export directly to your hard drive.
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
             </div>
@@ -182,7 +205,7 @@ export const Templates = {
             </div>
             <div class="g-item" style="grid-column: 1 / -1;">
                 <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Smart Transforms</strong>
-                Instantly convert any text snippet into <b>CamelCase</b>, <b>URL-Slugs</b>, or <b>Cleaned</b> versions via the "Magic" button.
+                Click the magic wand icon to reveal 6 instant formatting tools. Convert snippets into <b>UPPER</b>, <b>lower</b>, <b>Sentence case</b>, <b>camelCase</b>, or <b>-slugify-</b>. The <b>Clean URL</b> tool is context-aware: it strips tracking tags (like <i>utm_source</i>) from web links, or strips all whitespace from regular text.
             </div>
         </div>
     </div>
@@ -190,17 +213,23 @@ export const Templates = {
             <div id="guide-hotkeys" class="tab-pane">
                 <div class="st-title" style="margin-top: 0;">System Shortcuts</div>
                 <div class="g-grid" style="grid-template-columns: 1fr; gap: 8px;">
-                     <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;"><span>Toggle App Visibility</span><span class="k-badge">Ctrl + Alt + C</span></div>
-                     <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;"><span>Focus Search Bar</span><span class="k-badge">S</span></div>
+                     <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;">
+                        <span>Toggle App Visibility</span>
+                        <span class="k-badge">Ctrl + Alt + C</span>
+                     </div>
+                     <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;">
+                        <span>Focus Search Bar</span>
+                        <span class="k-badge">S</span>
+                     </div>
                      
-                     <div class="g-item" style="display:flex; flex-direction:column; gap:8px; padding:10px 12px;">
+                     <div class="g-item" style="display:flex; flex-direction:column; gap:8px; padding:10px 12px; grid-column: 1 / -1;">
                          <div style="display:flex; justify-content:space-between; align-items:center;">
                              <span style="font-weight:bold; color:var(--app-theme);">Contextual Action Key</span>
                              <span class="k-badge">Enter</span>
                          </div>
                          <div style="font-size: 11px; color: #aaa; line-height: 1.5; padding-left: 4px;">
-                             &bull; <b>Main List:</b> Copies the highlighted snippet when using the up/down arrows.<br>
-                             &bull; <b>Search Bar:</b> Cycles to the next match (Shift+Enter for previous).<br>
+                             &bull; <b>Main List:</b> Copies the highlighted snippet to your active clipboard.<br>
+                             &bull; <b>Search Bar:</b> Cycles to the next search match (Shift+Enter for previous).<br>
                              &bull; <b>Edit Mode:</b> Saves your custom label or text edits.
                          </div>
                      </div>
