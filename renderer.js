@@ -842,7 +842,14 @@ const updateSelection = (index, scroll = true) => {
 document.addEventListener('keydown', (e) => {
     if ((modal && modal.style.display === 'flex') || (helpModal && helpModal.style.display === 'flex') || (confirmModal && confirmModal.classList.contains('show'))) return;
     if (document.activeElement.tagName === 'TEXTAREA') return;
-    if ((e.key === 's' || e.key === 'S') && document.activeElement !== searchInput && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); settingsPanel.style.display = 'block'; updateWindowHeight(); if(searchInput) searchInput.focus(); return; }
+    if ((e.key === 's' || e.key === 'S') && document.activeElement !== searchInput && document.activeElement.tagName !== 'INPUT') { 
+        e.preventDefault(); 
+        settingsPanel.style.display = 'block'; 
+        document.body.classList.add('settings-active'); // <-- THE MISSING CLASS
+        updateWindowHeight(); 
+        if(searchInput) searchInput.focus(); 
+        return; 
+    }
     if (e.key === 'ArrowDown') { e.preventDefault(); updateSelection(selectedIndex + 1); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); updateSelection(selectedIndex - 1); }
     else if (e.key === 'Enter') { if (document.activeElement === searchInput) { e.preventDefault(); if (e.shiftKey) updateSelection(selectedIndex - 1); else updateSelection(selectedIndex + 1); } else if (selectedIndex >= 0 && displayedHistory[selectedIndex]) handleCopy(displayedHistory[selectedIndex]); }

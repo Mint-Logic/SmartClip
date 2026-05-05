@@ -192,12 +192,20 @@ export const Templates = {
                 <div class="g-grid" style="grid-template-columns: 1fr; gap: 8px;">
                      <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;"><span>Toggle App Visibility</span><span class="k-badge">Ctrl + Alt + C</span></div>
                      <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;"><span>Focus Search Bar</span><span class="k-badge">S</span></div>
-                     <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;"><span>Copy Selected</span><span class="k-badge">Enter</span></div>
+                     
+                     <div class="g-item" style="display:flex; flex-direction:column; gap:8px; padding:10px 12px;">
+                         <div style="display:flex; justify-content:space-between; align-items:center;">
+                             <span style="font-weight:bold; color:var(--app-theme);">Contextual Action Key</span>
+                             <span class="k-badge">Enter</span>
+                         </div>
+                         <div style="font-size: 11px; color: #aaa; line-height: 1.5; padding-left: 4px;">
+                             &bull; <b>Main List:</b> Copies the highlighted snippet when using the up/down arrows.<br>
+                             &bull; <b>Search Bar:</b> Cycles to the next match (Shift+Enter for previous).<br>
+                             &bull; <b>Edit Mode:</b> Saves your custom label or text edits.
+                         </div>
+                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
         `;
     }
 };

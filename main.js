@@ -903,58 +903,78 @@ if (newSettings.uiScale !== undefined && window) {
     ipcMain.on('minimize-window', () => window.minimize());
 
     ipcMain.on('resize-window', (event, arg1) => {
-    if (window && !window.isDestroyed() && !window.isMaximized()) {
-        // Unpack the payload
-        let newHeight = typeof arg1 === 'object' ? arg1.height : arg1;
-        let layoutState = typeof arg1 === 'object' ? arg1.layoutState : 0;
-        let requestedWidth = typeof arg1 === 'object' ? arg1.width : null;
-        
-        const currentBounds = window.getBounds();
-        
-        // 1. TRUST THE RENDERER: Use requested width or default to 535
-        let targetW = typeof requestedWidth === 'number' ? requestedWidth : 535;
-        let minH = 161;
+        if (window && !window.isDestroyed() && !window.isMaximized()) {
+            // Unpack the payload
+            let newHeight = typeof arg1 === 'object' ? arg1.height : arg1;
+            let layoutState = typeof arg1 === 'object' ? arg1.layoutState : 0;
+            let requestedWidth = typeof arg1 === 'object' ? arg1.width : null;
+            
+            const currentBounds = window.getBounds();
+            
+            // 1. TRUST THE RENDERER: Use requested width or default to 535
+            let targetW = typeof requestedWidth === 'number' ? requestedWidth : 535;
+            let minH = 161;
 
-        if (layoutState === 2) {
-            minH = 550; // Help mode
-        } else if (layoutState === 1) {
-            minH = 291; // Settings mode
+            if (layoutState === 2) {
+                minH = 550; // Help mode
+            } else if (layoutState === 1) {
+                minH = 291; // Settings mode
+            }
+
+            const finalH = Math.max(minH, Math.floor(newHeight));
+
+            // Grab the active monitor's dimensions
+            const currentScreen = screen.getDisplayMatching(currentBounds);
+            const { height: screenHeight, width: screenWidth, x: screenX, y: screenY } = currentScreen.workArea; 
+            
+            let newY = currentBounds.y;
+            let newX = currentBounds.x;
+
+            // --- THE 10px SAFE ZONE PADDING ---
+            const PADDING = 10;
+
+            // --- Y-AXIS BOUNDARY CHECK (Top/Bottom) ---
+            const projectedBottomEdge = newY + finalH;
+            const safeBottomEdge = screenY + screenHeight - PADDING;
+            const safeTopEdge = screenY + PADDING;
+
+            if (projectedBottomEdge > safeBottomEdge) {
+                newY = safeBottomEdge - finalH;
+            }
+            if (newY < safeTopEdge) {
+                newY = safeTopEdge;
+            }
+
+            // --- X-AXIS BOUNDARY CHECK (Left/Right) ---
+            const projectedRightEdge = newX + targetW;
+            const safeRightEdge = screenX + screenWidth - PADDING;
+            const safeLeftEdge = screenX + PADDING;
+
+            if (projectedRightEdge > safeRightEdge) {
+                newX = safeRightEdge - targetW; // Push left, leaving 10px gap
+            }
+            if (newX < safeLeftEdge) {
+                newX = safeLeftEdge; // Push right, leaving 10px gap
+            }
+
+            // --- THE NEW SAFETY CHECK ---
+            // Do not trigger a redraw if the window is already the correct size and position!
+            if (currentBounds.width === targetW && currentBounds.height === finalH && currentBounds.y === newY && currentBounds.x === newX) {
+                return; 
+            }
+
+            // 2. Apply sizes and boundaries
+            window.setMinimumSize(535, minH);
+            window.setMaximumSize(9999, 9999); 
+            
+            window.setBounds({ 
+                x: newX, 
+                y: newY, 
+                width: targetW, 
+                height: finalH 
+            }, true); // <--- We put 'true' back so DWM doesn't drop the texture!
         }
-
-        const finalH = Math.max(minH, Math.floor(newHeight));
-
-        const currentScreen = screen.getDisplayMatching(currentBounds);
-        const { height: screenHeight, y: screenY } = currentScreen.workArea; 
-        
-        let newY = currentBounds.y;
-        const projectedBottomEdge = newY + finalH;
-        const screenBottomEdge = screenY + screenHeight; 
-
-        if (projectedBottomEdge > screenBottomEdge) {
-            newY = screenBottomEdge - finalH;
-        }
-        if (newY < screenY) {
-            newY = screenY;
-        }
-
-        // --- THE NEW SAFETY CHECK ---
-        // Do not trigger a redraw if the window is already the correct size!
-        if (currentBounds.width === targetW && currentBounds.height === finalH && currentBounds.y === newY) {
-            return; 
-        }
-
-        // 2. Apply sizes
-        window.setMinimumSize(535, minH);
-        window.setMaximumSize(9999, 9999); 
-        
-        window.setBounds({ 
-            x: currentBounds.x, 
-            y: newY, 
-            width: targetW, 
-            height: finalH 
-        }, true); // <--- We put 'true' back so DWM doesn't drop the texture!
-    }
-});
+    });
 
     ipcMain.on('toggle-favorite', (event, timestamp) => {
         const history = db.get('history');
