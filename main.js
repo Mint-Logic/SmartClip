@@ -250,13 +250,6 @@ function initializeApp() {
     }
 });
 
-// Force a recalculation when the window size changes (like closing DevTools)
-window.addEventListener('resize', () => {
-    // Reset scroll positions that DevTools might have messed up
-    document.documentElement.scrollTop = 0;
-    updateWindowHeight();
-});
-
         // Updated to save the actual dynamic width!
         let resizeTimeout;
         window.on('resize', () => { 
