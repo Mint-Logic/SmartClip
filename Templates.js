@@ -190,7 +190,7 @@ export const Templates = {
             <div id="guide-hotkeys" class="tab-pane">
                 <div class="st-title" style="margin-top: 0;">System Shortcuts</div>
                 <div class="g-grid" style="grid-template-columns: 1fr; gap: 8px;">
-                     <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;"><span>Toggle App Visibility</span><span class="k-badge">Ctrl + Shift + Space</span></div>
+                     <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;"><span>Toggle App Visibility</span><span class="k-badge">Ctrl + Alt + C</span></div>
                      <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;"><span>Focus Search Bar</span><span class="k-badge">S</span></div>
                      <div class="g-item" style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px;"><span>Copy Selected</span><span class="k-badge">Enter</span></div>
                 </div>

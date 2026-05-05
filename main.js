@@ -562,7 +562,7 @@ if (text && text.trim() !== '') {
         
         createWindow(); 
         createTray();
-        globalShortcut.register('CommandOrControl+Shift+Space', toggleWindow);
+        globalShortcut.register('CommandOrControl+Alt+C', toggleWindow);
        
         startMonitoring();
     });
