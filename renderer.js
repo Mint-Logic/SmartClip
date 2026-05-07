@@ -360,26 +360,50 @@ const renderList = (history) => {
     const list = document.getElementById('historyList');
     const clipHeader = document.querySelector('.clip-history-header'); 
     const historyBox = document.querySelector('.clip-history-box'); 
+    
     if (!list) return; 
-    list.innerHTML = '';
+    list.innerHTML = ''; // THE CRITICAL CLEAR
     
     const rawTerm = (searchInput && searchInput.value) ? searchInput.value : "";
+
+    // ==========================================================
+    // [LANDMARK] 1. DATA SORTING & FILTERING
+    // ==========================================================
     
-    // 1. Pass the activeFilter to your manager (We will upgrade the manager next!)
-    displayedHistory = HistoryManager.filterAndSort(history, rawTerm, activeFilter);
-    
-    // 2. THE NEW HEADER COUNT INJECTION
+    // 1. Handle Sorting (Chronological by default)
+    const sorted = [...history].sort((a, b) => {
+        // ONLY jump favorites to the top if the user has selected the FAV filter
+        // OR if you want a dedicated "Sort by Fav" mode. 
+        // For now, let's make it strictly chronological unless FAV filter is ON.
+        if (activeFilter === 'FAV') {
+            if (a.favorite !== b.favorite) return b.favorite ? 1 : -1;
+        }
+        
+        // Otherwise, stay strictly chronological (Latest first)
+        return b.timestamp - a.timestamp;
+    });
+
+    // 2. Pass to HistoryManager
+    let filtered = HistoryManager.filterAndSort(sorted, rawTerm, activeFilter === 'FAV' ? 'ALL' : activeFilter);
+
+    // 3. Final Pass
+    displayedHistory = filtered.filter(item => {
+        if (activeFilter === 'FAV') return item.favorite === true;
+        return true; 
+    });
+
+    // ==========================================================
+    // [LANDMARK] 2. HEADER & EMPTY STATE
+    // ==========================================================
     if (historyBox) {
         const maxLimit = globalSettings.maxItems || (IS_PRO_BUILD ? 100 : 50);
         historyBox.style.display = 'flex';
         historyBox.style.justifyContent = 'space-between';
-        historyBox.style.alignItems = 'baseline';
-        historyBox.style.paddingRight = '40px'; // Clears the search button
+        historyBox.style.paddingRight = '40px';
         
-        // Keeps the title Cyan, but makes the numbers gray/white
         historyBox.innerHTML = `
             <span>CLIP HISTORY</span>
-            <span style="font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 10px; color: var(--app-theme); opacity: 0.96; letter-spacing: 0.5px;">
+            <span style="font-family: system-ui; font-weight: 600; font-size: 10px; color: var(--app-theme);">
                ITEMS: ${displayedHistory.length}/${maxLimit} 
             </span>
         `;
@@ -445,9 +469,11 @@ const isSecret = HistoryManager.isSecret(item, globalSettings, IS_PRO_BUILD);
                 <div class="item-header">
                     <div class="left-actions">
                         <input type="checkbox" class="select-checkbox" ${isChecked} title="Select Item">
-                        ${item.type === 'text' ? `<button class="action-btn expand-btn" title="${isSecret ? 'Click to unmask' : 'Expand View'}"><i class="fa-solid fa-${isSecret ? 'lock' : 'chevron-down'}"></i></button>${IS_PRO_BUILD ? `<button class="action-btn magic-btn" title="Smart Transform"><i class="fa-solid fa-wand-magic-sparkles"></i></button>` : ''}` : `<i class="fa-solid fa-camera" style="font-size:10px; color:var(--muted)"></i>`}
-                        <button class="action-btn star-btn ${item.favorite ? 'active' : ''}" title="${item.favorite ? 'Unfavorite' : 'Favorite'}"><i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"></i></button>
+                        ${item.type === 'text' ? `<button class="action-btn expand-btn" title="${isSecret ? 'Click to unmask' : 'Expand View'}">${isSecret ? '<i class="fa-solid fa-lock"></i>' : '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 17 18 9"></polyline></svg>'}</button>
+                        ${IS_PRO_BUILD ? `<button class="action-btn magic-btn" title="Smart Transform"><i class="fa-solid fa-wand-magic-sparkles"></i></button>` : ''}` : `<i class="fa-solid fa-camera" style="font-size:10px; color:var(--muted)"></i>`}
+                        
                         ${(item.type === 'text' && IS_PRO_BUILD && !isSecret) ? `<button class="action-btn edit-btn" title="Edit"><i class="fa-solid fa-pen"></i></button>` : ''}
+                        <button class="action-btn star-btn ${item.favorite ? 'active' : ''}" title="${item.favorite ? 'Unfavorite' : 'Favorite'}"><i class="fa-${item.favorite ? 'solid' : 'regular'} fa-star"; style="font-size: .65rem";></i></button>
                     </div>
                     <div class="copy-instruction">${isSecret ? 'click to copy hidden text' : (item.type === 'image' ? 'click image or tags to copy' : 'click text to copy')}</div>
                     <div class="right-actions"><span style="font-size:0.55rem; color:var(--muted); opacity:0.7;">${sizeStr}</span></div>
@@ -1308,15 +1334,11 @@ UIManager.initDragAndDropUI(dropzone, async (file) => {
 // --- QUICK FILTER LOGIC ---
 document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.onclick = (e) => {
-        // 1. Remove active class from all buttons
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        
-        // 2. Add active class to the clicked button
         btn.classList.add('active');
         
-        // 3. Update the state and refresh the list
-        activeFilter = btn.getAttribute('data-filter');
-        renderList(fullHistory);
+        activeFilter = btn.getAttribute('data-filter'); // This picks up "FAV"
+        renderList(fullHistory); 
     };
 });
 

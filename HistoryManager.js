@@ -39,13 +39,8 @@ export const HistoryManager = {
             });
         }
 
-        // 3. APPLY SORTING (Pinned First, then Newest)
-        return processedList.sort((a, b) => {
-            if (a.favorite === b.favorite) {
-                return b.timestamp - a.timestamp; 
-            }
-            return a.favorite ? -1 : 1; 
-        });
+        // 3. APPLY SORTING (Newest first, respect Renderer's choice)
+        return processedList.sort((a, b) => b.timestamp - a.timestamp);
     },
 
     getMatchStatus: (count) => {

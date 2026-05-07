@@ -414,7 +414,7 @@ body.settings-active .empty-state {
 
 /* --- ITEM --- */
 .item { 
-   background: rgba(20, 22, 26, 1) !important;
+   background: rgba(20, 22, 26, 0.9) !important;
     border: 1px solid rgba(0, 229, 255, 0.10) !important; /* Faint resting Cyan */
     border-radius: 4px; 
     padding: 8px 12px !important; /* Exact HexStack padding */
@@ -433,7 +433,7 @@ body.settings-active .empty-state {
 /* EXACT HEXSTACK MATCH: Only border lights up, no background shift, no lifting */
 .item:hover { 
     border-color: var(--app-theme) !important; 
-    background: rgba(20, 22, 26, 1) !important; 
+    background: rgba(20, 22, 26, 0.9) !important; 
     transform: none !important;
     box-shadow: none !important;
 }
@@ -441,7 +441,7 @@ body.settings-active .empty-state {
 /* EXACT HEXSTACK MATCH: Selected state with ONLY the theme outline */
 .item.selected, .item.selected-item { 
     border-color: var(--app-theme) !important; 
-    background: rgba(20, 22, 26, 1) !important; /* Locked to the exact resting dark background */
+    background: rgba(20, 22, 26, 0.9) !important; /* Locked to the exact resting dark background */
     box-shadow: none !important; /* Killed the neon glow */
     z-index: 10;
 }
@@ -518,11 +518,20 @@ body.settings-active .empty-state {
 }
 .item:hover .copy-instruction, .item.selected .copy-instruction { opacity: 0.5; }
 
-.action-btn.expand-btn { font-size: 12px !important; display: flex; align-items: center; justify-content: center; width: 14px; margin-top: -2px; }
+.expand-btn { 
+    margin-left: -2px !important; 
+    margin-right: -2px !important; 
+    margin-top: 0px !important;          
+    font-size: 12px !important;        
+    width: 18px !important;            
+}
 .action-btn.expand-btn i { line-height: 1; display: block; }
 .action-btn { background: none; border: none; padding: 0; margin-bottom: 4px; font-size: 9px; color: var(--muted); transition: 0.2s; }
 .action-btn:hover { color: var(--app-theme); }
-.star-btn.active { color: #8CFA96 !important; }
+.star-btn {
+    margin-top: 2px; 
+}
+.star-btn.active { color: #8CFA96 !important;}
 .star-btn:hover {
     color: #8CFA96 !important;
     transform: scale(1.2);
@@ -1053,7 +1062,7 @@ div[style*="border: 1px dashed #FF007F"] {
 
 .filter-btn:hover {
     color: var(--app-theme);
-    background: rgba(0, 229, 255, 0.05);
+    
 }
 
 .filter-btn.active {
