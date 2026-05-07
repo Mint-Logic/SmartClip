@@ -1134,6 +1134,12 @@ const toggleConsolePanel = () => {
 };
 if (consoleBtn) consoleBtn.onclick = toggleConsolePanel;
 
+// --- NEW CODE: Link the inner panel close button to the toggle function ---
+const closeSearchPanelBtn = document.getElementById('closeSearchPanelBtn');
+if (closeSearchPanelBtn) {
+    closeSearchPanelBtn.onclick = toggleConsolePanel;
+}
+
 if (closeHelpBtn) {
     closeHelpBtn.onclick = () => { 
         if (helpModal) helpModal.style.display = 'none'; 
@@ -1293,8 +1299,9 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         const searchInput = document.getElementById('searchInput');
         const clearBtn = document.getElementById('clearSearch');
+        const settingsPanel = document.getElementById('settingsPanel');
         
-        // 1. If you are typing a search, Esc clears the search first
+        // 1. If you are typing a search, Esc clears the search input first
         if (searchInput && searchInput.value.length > 0) {
             searchInput.value = '';
             if (clearBtn) clearBtn.style.display = 'none';
@@ -1305,7 +1312,13 @@ window.addEventListener('keydown', (e) => {
             return;
         }
 
-        // 2. Otherwise, hide the app to the tray using the correct Preload method
+        // 2. NEW: If search is empty but the panel is open, close the panel first
+        if (settingsPanel && settingsPanel.style.display === 'block') {
+            if (typeof toggleConsolePanel === 'function') toggleConsolePanel();
+            return;
+        }
+
+        // 3. Otherwise, hide the app to the tray
         if (window.smartClip && window.smartClip.hideWindow) {
             window.smartClip.hideWindow();
         }

@@ -332,7 +332,16 @@ option {
 .search-meta { display: flex; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--muted); font-family: 'Consolas', monospace; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 6px; }
 .search-nav-btn { background: transparent; border: none; color: var(--muted); cursor: pointer; padding: 2px 4px; border-radius: 3px; font-size: 0.7rem; display: flex; align-items: center; }
 .search-nav-btn:hover { background: rgba(255,255,255,0.1); color: var(--txt); }
+#closeSearchPanelBtn {
+    opacity: 0.6 !important; /* Adjust your resting opacity here */
+    transition: all 0.2s ease;
+}
 
+#closeSearchPanelBtn:hover {
+    opacity: 1 !important;
+    /* Optional: Adds a slight red glow on hover to match the app's aesthetic */
+    text-shadow: 0 0 8px rgba(231, 76, 60, 0.6); 
+}
 .log-header { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-top: 8px; border-top: 1px solid var(--brdr); }
 .log-left { display: flex; align-items: center; gap: 6px; }
 .info-btn { background: none; border: 1px solid var(--app-theme); color: var(--app-theme); border-radius: 50%; width: 14px; height: 14px; font-size: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }

@@ -117,11 +117,16 @@
         <i class="fa-solid fa-circle-xmark"></i>
     </button>
     <div class="search-meta" id="searchMeta" style="display:none;">
-                <span id="matchCount">0/0</span>
-                <button class="search-nav-btn" id="searchUpBtn"><i class="fa-solid fa-chevron-up"></i></button>
-                <button class="search-nav-btn" id="searchDownBtn"><i class="fa-solid fa-chevron-down"></i></button>
-            </div>
-        </div>
+        <span id="matchCount">0/0</span>
+        <button class="search-nav-btn" id="searchUpBtn"><i class="fa-solid fa-chevron-up"></i></button>
+        <button class="search-nav-btn" id="searchDownBtn"><i class="fa-solid fa-chevron-down"></i></button>
+    </div>
+
+    <div style="width: 1px; height: 16px; background: var(--brdr); margin: 0 6px;"></div>
+    <button id="closeSearchPanelBtn" style="background: none; border: none; color: #E74C3C; cursor: pointer; padding: 0 4px; font-size: 14px; transition: color 0.2s;" title="Close Panel (Esc)">
+        <i class="fa-solid fa-xmark"></i>
+    </button>
+</div>
 
         <div class="log-header">
             <div class="log-left">
@@ -139,7 +144,7 @@
     <div class="clip-history-header" style="position: relative; display: flex; align-items: center; width: 100%;">
     <div class="clip-history-box" style="width: 100%;">CLIP HISTORY</div>
     
-    <button id="consoleBtn" data-tip="Terminal & Search">
+    <button id="consoleBtn" title="Terminal & Search">
         <i class="fa-solid fa-magnifying-glass"></i>
     </button>
 </div>
