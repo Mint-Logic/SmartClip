@@ -166,6 +166,9 @@ function initializeApp() {
         minWidth: 535, 
         maxWidth: 9999,
         resizable: false,
+        thickFrame: false, 
+            maximizable: false,
+            fullscreenable: false,
         transparent: true,
         backgroundColor: '#00000000',
         show: false, 
@@ -819,45 +822,20 @@ if (newSettings.uiScale !== undefined && window) {
         }
     });
 
-    ipcMain.on('download-history', async (event, selectedIds) => {
-        const history = db.get('history');
-        const items = selectedIds.length ? history.filter(i => selectedIds.includes(i.timestamp)) : history;
-        
-        // 1. Tell the OS to offer specific file formats
-        const { filePath } = await dialog.showSaveDialog(window, { 
-            defaultPath: 'SmartClip_Export',
-            filters: [
-                { name: 'Text Document', extensions: ['txt'] },
-                { name: 'JSON Data', extensions: ['json'] },
-                { name: 'CSS Stylesheet', extensions: ['css'] }
-            ]
-        });
+    // [HS PARITY] UPGRADED EXPORT ENGINE FOR SC
+ipcMain.on('download-history', async (event, payloadStr, format) => {
+    let ext = format || 'txt';
+    let filterName = (format === 'json') ? 'JSON Data' : (format === 'css' ? 'CSS Stylesheet' : 'Text Files');
 
-        if (filePath) { 
-            let content = "";
-            
-            // 2. Format the output based on the user's chosen file type
-            if (filePath.toLowerCase().endsWith('.json')) {
-                // Extract just the text values and format as a clean JSON array
-                content = JSON.stringify(items.map(i => i.text), null, 2);
-            } else if (filePath.toLowerCase().endsWith('.css')) {
-                // Wrap the stacked items in a :root block for valid CSS syntax
-                const cssLines = items.map(i => `    ${i.text}`).join('\n');
-                content = `:root {\n${cssLines}\n}`;
-            } else {
-                // Standard TXT format with visual separators
-                content = items.map(i => i.text).join('\n---\n');
-            }
-            
-            try {
-                fs.writeFileSync(filePath, content); 
-                logToUI(`Exported ${items.length} items.`); 
-            } catch (err) {
-                console.error("Export failed:", err);
-                logToUI("[ERROR] Export Failed");
-            }
-        }
+    const { filePath } = await dialog.showSaveDialog(window, { 
+        defaultPath: `SmartClip_Export.${ext}`,
+        filters: [{ name: filterName, extensions: [ext] }]
     });
+
+    if (filePath) { 
+        fs.writeFileSync(filePath, payloadStr, 'utf-8'); 
+    }
+});
 
     // THE FIX: Sync the exact variables the monitor uses
     ipcMain.on('write-clipboard', (event, text) => { 
@@ -916,7 +894,7 @@ if (newSettings.uiScale !== undefined && window) {
             let minH = 161;
 
             if (layoutState === 2) {
-                minH = 550; // Help mode
+                minH = 650; // Help mode
             } else if (layoutState === 1) {
                 minH = 291; // Settings mode
             }

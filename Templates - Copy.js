@@ -4,85 +4,57 @@ export const Templates = {
     getAboutHtml: function(isPro, isDev) {
         return `
 <div class="guide-content">
-    <div class="guide-header" style="display: flex; justify-content: space-between; align-items: center; padding-right: 15px;">
-        <h2>SmartClip Settings</h2>
+    <div class="guide-header">
+        <h2><i class="fa-solid fa-clipboard-list"></i> SmartClip Settings</h2>
         
-        <button id="closeHelpBtn" style="position: relative; z-index: 9999; -webkit-app-region: no-drag; pointer-events: auto; background: transparent; border: 1px solid var(--brdr); color: var(--muted); cursor: pointer; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 4px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin: 0;">
+        <button id="closeHelpBtn" style="background: transparent; border: 1px solid var(--brdr); color: var(--muted); cursor: pointer; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; padding: 4px 12px; border-radius: 4px; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin: 0;">
             Close
         </button>
     </div>
-
     <div class="settings-body">
         <div class="settings-sidebar">
             <div class="sidebar-section">Configuration</div>
             <button class="tab-btn active" data-tab="tab-about"><i class="fa-solid fa-circle-info"></i> About</button>
             <button class="tab-btn" data-tab="tab-prefs"><i class="fa-solid fa-sliders"></i> Preferences</button>
-            
             <div class="sidebar-section">User Guide</div>
             <button class="tab-btn" data-tab="guide-workflow"><i class="fa-solid fa-bolt"></i> Workflow</button>
             ${isPro ? `<button class="tab-btn" data-tab="guide-pro"><i class="fa-solid fa-wand-magic-sparkles"></i> Pro Tools</button>` : ''}
             <button class="tab-btn" data-tab="guide-hotkeys"><i class="fa-solid fa-keyboard"></i> Shortcuts</button>
         </div>
-
         <div class="settings-main">
-            
             <div id="tab-about" class="tab-pane active">
                 <div style="text-align: center; padding: 0px 0 10px 0;">
                     <img src="icon.png" style="width: 60px; height: 60px; margin-top: 0px; margin-bottom: 0px;">
-                    <div style="font-family:'Orbitron', sans-serif; font-size: 20px; font-weight: 900; color: #fff;">
-                        <span style="position: relative; display: inline-block;">
-                            <span style="color:var(--accent)">Smart</span>Clip
-                            <span class="edition-label ${isPro ? 'pro' : 'core'}" style="font-size:9px; position: absolute; left: 100%; top: 0; margin-left: 4px;">${isPro ? 'PRO' : 'CORE'}</span>
-                        </span>
-                    </div>
+                   <div style="font-family:'Orbitron', sans-serif; font-size: 20px; font-weight: 900; color: #fff;">
+    <span style="position: relative; display: inline-block;">
+        <span style="color:var(--app-theme)">Smart</span>Clip
+        <span class="edition-label ${isPro ? 'pro' : 'core'}" style="font-size:9px; position: absolute; left: 100%; top: 0; margin-left: 4px;">${isPro ? 'PRO' : 'CORE'}</span>
+    </span>
+</div>
                     <div style="font-size: 11px; color: #999; margin-top: 0px;">Version 1.0.0</div>
-                    
                     ${!isPro ? `
-                    <div style="font-size: 11px; color: var(--accent); border: 1px dashed var(--accent); padding: 6px 15px; border-radius: 4px; opacity: 0.8; text-align: center; margin: 8px auto 10px auto; max-width: 300px;">
-                        <i class="fa-solid fa-file-import"></i> Drag & Drop your <b>.mint</b> file to unlock Pro
-                    </div>
-                    ` : `
-                    <div class="license-active-badge" style="display:flex; align-items:center; justify-content:center; gap:8px; padding: 6px 15px; background: rgba(0, 229, 255, 0.1); border: 1px solid var(--accent); border-radius: 20px; margin: 8px auto 10px auto; width: fit-content;">
-                        <i class="fa-solid fa-circle-check" style="color:var(--accent); font-size: 14px;"></i>
-                        <span style="color:var(--accent); font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">License Active &bull; Pro Edition</span>
-                    </div>
-                    `}
-                    
+<div style="font-size: 11px; color: var(--app-theme); border: 1px dashed var(--app-theme); padding: 6px 15px; border-radius: 4px; opacity: 0.8; text-align: center; margin: 8px auto 10px auto; max-width: 300px;">
+    <i class="fa-solid fa-file-import"></i> Drag & Drop your <b>.mint</b> file to unlock Pro
+</div>
+` : ''}
                     <div style="margin-top: 8px; display:flex; gap:10px; justify-content:center; align-items: center;">
-                        <button id="btnCheckUpdates" style="height: 24px; display: flex; align-items: center; justify-content: center; gap: 5px; background:transparent; border:1px solid var(--accent); color:var(--accent); padding:0 12px; border-radius:4px; cursor:pointer; font-size:11px; transition: 0.2s; text-transform: none;"><i class="fa-solid fa-rotate"></i> Updates</button>
-                        
-                        ${!isPro ? `
-                        <button id="btnUpgradePro" style="height: 24px; display: flex; align-items: center; justify-content: center; gap: 5px; background:#8CFA96; border:none; color:#1e1e1e; font-weight:bold; padding:0 12px; border-radius:4px; cursor:pointer; font-size:11px; transition: 0.2s; text-transform: none;"><i class="fa-solid fa-rocket"></i> Get Key</button>
-                        ` : ''}
+                        <button id="btnCheckUpdates" style="height: 24px; display: flex; align-items: center; justify-content: center; gap: 5px; background:transparent; border:1px solid var(--app-theme); color:var(--app-theme); padding:0 12px; border-radius:4px; cursor:pointer; font-size:11px; transition: 0.2s;"><i class="fa-solid fa-rotate"></i> Updates</button>
+                        ${!isPro ? `                
+                        <button id="btnUpgradePro" style="height: 24px; display: flex; align-items: center; justify-content: center; gap: 5px; background:#8CFA96; border:none; color:#1e1e1e; font-weight:bold; padding:0 12px; border-radius:4px; cursor:pointer; font-size:11px; transition: 0.2s;"><i class="fa-solid fa-rocket"></i> Get Key</button>` : ''}
                     </div>
-
-                    <p style="color:#ccc; font-size:12px; max-width:425px; margin: 15px auto 5px auto; line-height: 1.5;">
-                        SmartClip is a high-performance clipboard manager. Capture text, links, and snippets seamlessly, organize them instantly, and paste without breaking your workflow.
-                    </p>
-
-                    <div style="display:flex; gap:20px; justify-content:center; margin-top: 10px; font-size: 11px; color: #aaa;">
-                        <span title="Stored safely on your device"><i class="fa-solid fa-hard-drive"></i> Local Storage</span>
-                        <span title="Zero telemetry, strictly offline"><i class="fa-solid fa-wifi"></i> 100% Offline</span>
+                    <p style="color:#ccc; font-size:12px; max-width:425px; margin: 15px auto 5px auto; line-height: 1.5;">SmartClip is a high-performance clipboard manager. Capture text, links, and snippets seamlessly, organize them instantly, and paste without breaking your workflow.</p>
+                </div>
+                <div class="setting-group" style="border-top: 1px solid #333; padding-top: 0px; padding-bottom: 0px; margin-top: 8px; margin-bottom: 10px;">
+                    <div class="g-item" style="grid-column: 1 / -1;">
+                        <strong style="color: var(--app-theme);"><i class="fa-solid fa-shield-halved"></i> Zero-Telemetry Policy</strong>
+                        Zero-Telemetry Policy. SmartClip operates strictly offline. We do not track usage or collect analytics. The only time SmartClip connects to the internet is a single, one-time ping during Pro activation to verify your license. Your clipboard data and snippets never leave your local hardware.
                     </div>
                 </div>
-
-                <div class="custom-box" style="border: 1px solid #333; background: rgba(255,255,255,0.01); border-radius: 6px; padding: 15px 20px; text-align: left; margin: 15px auto 10px auto; max-width: 530px; box-shadow: inset 1px 1px 3px rgba(0,0,0,0.3);">
-                    <div style="color: var(--accent); font-size: 13px; font-weight: bold; margin-bottom: 8px; font-family: 'Orbitron', sans-serif; letter-spacing: 0.5px;">
-                        <i class="fa-solid fa-shield-halved"></i> Zero-Telemetry Policy
-                    </div>
-                    <p style="color: #ccc; font-size: 11.5px; line-height: 1.6; margin: 0;">
-                        SmartClip operates strictly offline. We do not track usage or collect analytics. Your history, text, and snippets never leave your local hardware. The only time SmartClip connects to the internet is a single, one-time ping during Pro activation to verify your license.
-                    </p>
-                </div>
-                
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 30px; padding-top: 8px; padding-bottom: 15px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 8px; padding-bottom: 15px;">
                     <img src="mint_logic.png" alt="Mint Logic LLC" style="width: 120px; height: auto;">
-                    <div style="margin-top: 8px; font-size: 10px; color: #888; letter-spacing: 0.5px;">
-                        &copy; 2026 Mint Logic LLC. All rights reserved.
-                    </div>
+                    <div style="margin-top: 8px; font-size: 10px; color: #888; letter-spacing: 0.5px;">&copy; 2026 Mint Logic LLC. All rights reserved.</div>
                 </div>
             </div>
-
             <div id="tab-prefs" class="tab-pane">
             ${isDev ? `
                 <div class="setting-group" style="border: 1px dashed #FF007F; padding: 10px; border-radius: 6px; margin-bottom: 20px; background: rgba(255, 0, 127, 0.05);">
@@ -99,13 +71,13 @@ export const Templates = {
                 <div class="setting-group">
                     <div class="st-title">Application Behavior</div>
                     <div class="setting-row">
-                        <div class="setting-label">UI Scale <div class="setting-desc">Adjust the overall size of the application text and interface.</div></div>
-                        <select id="uiScaleSelect" style="background:#1e1e1e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:12px; cursor:pointer; outline:none;">
-                            <option value="1">Normal (100%)</option>
-                            <option value="1.15">Large (115%)</option>
-                            <option value="1.25">Extra Large (125%)</option>
-                        </select>
-                    </div>
+    <div class="setting-label">UI Scale <div class="setting-desc">Adjust the overall size of the application text and interface.</div></div>
+    <select id="uiScaleSelect" style="background:#1e1e1e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:12px; cursor:pointer; outline:none;">
+    <option value="1">Normal (100%)</option>
+    <option value="1.15">Large (115%)</option>
+    <option value="1.25">Extra Large (125%)</option>
+</select>
+</div>
                     <div class="setting-row">
                         <div class="setting-label">Always On Top <div class="setting-desc">Keep window floating above other apps.</div></div>
                         <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="alwaysOnTopToggle"><span class="slider"></span></label>
@@ -119,13 +91,14 @@ export const Templates = {
                         <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="guideTooltipToggle"><span class="slider"></span></label>
                     </div>
                     <div class="setting-row">
-                        <div class="setting-label">Ignore Colors <div class="setting-desc">Don't capture hex codes (use HexStack instead).</div></div>
-                        <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="ignoreColorsToggle"><span class="slider"></span></label>
-                    </div>
-                    <div class="setting-row">
-                        <div class="setting-label">Move Duplicates <div class="setting-desc">Jump existing items to top instead of creating new ones.</div></div>
-                        <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="moveDupesToggle"><span class="slider"></span></label>
-                    </div>
+            <div class="setting-label">Ignore Colors <div class="setting-desc">Don't capture hex codes (use HexStack instead).</div></div>
+            <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="ignoreColorsToggle"><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+            <div class="setting-label">Move Duplicates <div class="setting-desc">Jump existing items to top instead of creating new ones.</div></div>
+            <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="moveDupesToggle"><span class="slider"></span></label>
+        </div>
+                    
                     <div class="setting-row">
                         <div class="setting-label">Launch on Startup <div class="setting-desc">Automatically run SmartClip when Windows starts.</div></div>
                         <label class="switch" style="transform:scale(0.8); margin:0;"><input type="checkbox" id="startupToggle"><span class="slider"></span></label>
@@ -137,35 +110,35 @@ export const Templates = {
                 </div>
 
                 ${isPro ? `
-                <div class="setting-group">
-                    <div class="st-title">Privacy & Security</div>
-                    <div class="setting-row">
-                        <div class="setting-label">
-                            Sensitivity Level 
-                            <div class="setting-desc">
-                                Adjust how aggressively SmartClip masks potential secrets like API keys and tokens.
-                            </div>
-                        </div>
-                        <select id="privacyLevelSelect" style="background:#1e1e1e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:12px; cursor:pointer; outline:none;">
-                            <option value="LOW">Low (API Keys Only)</option>
-                            <option value="MED" selected>Medium (Recommended)</option>
-                            <option value="HIGH">High (Trust No One)</option>
-                        </select>
-                    </div>
-                    <div id="sensitivityStatus" style="display: none; font-size: 10px; color: #FFD80D; margin-top: 8px; font-style: italic; opacity: 0.9; line-height: 1.4;">
-                        <i class="fa-solid fa-user-secret"></i> <b>Warning:</b> Trust No One Mode is extremely paranoid and may mask anything it suspects of containing security keywords. 
-                        <span id="jokeEnding"></span>
-                    </div>
-                </div>
-                ` : ''}
+<div class="setting-group">
+    <div class="st-title">Privacy & Security</div>
+    <div class="setting-row">
+        <div class="setting-label">
+            Sensitivity Level 
+            <div class="setting-desc">
+                Adjust how aggressively SmartClip masks potential secrets like API keys and tokens.
+            </div>
+        </div>
+        <select id="privacyLevelSelect" style="background:#1e1e1e; border:1px solid #444; color:#fff; padding:4px; border-radius:4px; font-size:12px; cursor:pointer; outline:none;">
+            <option value="LOW">Low (API Keys Only)</option>
+            <option value="MED" selected>Medium (Recommended)</option>
+            <option value="HIGH">High (Trust No One)</option>
+        </select>
+    </div>
+    <div id="sensitivityStatus" style="display: none; font-size: 10px; color: #FFD80D; margin-top: 8px; font-style: italic; opacity: 0.9; line-height: 1.4;">
+        <i class="fa-solid fa-user-secret"></i> <b>Warning:</b> Trust No One Mode is extremely paranoid and may mask anything it suspects of containing security keywords. 
+        <span id="jokeEnding"></span>
+    </div>
+</div>
+` : ''}
                 <div class="setting-group">
                     <div class="st-title">Data Management</div>
                     <div class="setting-row">
                         <div class="setting-label">History Limit <div class="setting-desc">Max clips kept in memory before overwriting.</div></div>
                         <div style="display:flex; align-items:center; gap:5px;">
-                            <button id="spinDown" style="background:none; border:none; color:var(--accent); cursor:pointer;"><i class="fa-solid fa-minus"></i></button>
+                            <button id="spinDown" style="background:none; border:none; color:var(--app-theme); cursor:pointer;"><i class="fa-solid fa-minus"></i></button>
                             <input type="number" id="maxItemsInput" style="background:#1e1e1e; border:1px solid #444; color:#fff; width:45px; text-align:center; padding:4px; border-radius:4px; font-size:12px;" readonly>
-                            <button id="spinUp" style="background:none; border:none; color:var(--accent); cursor:pointer;"><i class="fa-solid fa-plus"></i></button>
+                            <button id="spinUp" style="background:none; border:none; color:var(--app-theme); cursor:pointer;"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     </div>
                     <div class="setting-row">
@@ -178,7 +151,6 @@ export const Templates = {
                     </div>
                 </div>
             </div>
-
             <div id="guide-workflow" class="tab-pane">
                 <div class="setting-group">
                     <div class="st-title">Capture & Management</div>
@@ -215,30 +187,29 @@ export const Templates = {
             </div>
           
             ${isPro ? `
-            <div id="guide-pro" class="tab-pane">
-                <div class="setting-group">
-                    <div class="st-title">Pro Utility Suite</div>
-                    <div class="g-grid">
-                        <div class="g-item" style="grid-column: 1 / -1;">
-                            <strong><i class="fa-solid fa-brain"></i> Developer "Prose Bypass"</strong>
-                            SmartClip Pro is smart enough to distinguish between code and credentials. It automatically bypasses masking for code blocks (brackets, semicolons, etc.) so your dev workflow stays readable while your secrets stay hidden.
-                        </div>
-                        <div class="g-item">
-                            <strong><i class="fa-solid fa-user-secret"></i> Trust No One Mode</strong>
-                            Unlock high-sensitivity heuristics that aggressively mask anything resembling a secret, even in short snippets or casual prose.
-                        </div>
-                        <div class="g-item">
-                            <strong><i class="fa-solid fa-file-export"></i> Professional Export</strong>
-                            Export your research and snippets into consolidated <b>.TXT</b>, <b>.CSS</b>, or <b>.JSON</b> files for easy integration into your projects.
-                        </div>
-                        <div class="g-item" style="grid-column: 1 / -1;">
-                            <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Smart Transforms</strong>
-                            Click the magic wand icon to reveal 6 instant formatting tools. Convert snippets into <b>UPPER</b>, <b>lower</b>, <b>Sentence case</b>, <b>camelCase</b>, or <b>-slugify-</b>. The <b>Clean URL</b> tool is context-aware: it strips tracking tags (like <i>utm_source</i>) from web links, or strips all whitespace from regular text.
-                        </div>
-                    </div>
-                </div>
-            </div>` : ''}
-
+<div id="guide-pro" class="tab-pane">
+    <div class="setting-group">
+        <div class="st-title">Pro Utility Suite</div>
+        <div class="g-grid">
+            <div class="g-item" style="grid-column: 1 / -1;">
+                <strong><i class="fa-solid fa-brain"></i> Developer "Prose Bypass"</strong>
+                SmartClip Pro is smart enough to distinguish between code and credentials. It automatically bypasses masking for code blocks (brackets, semicolons, etc.) so your dev workflow stays readable while your secrets stay hidden.
+            </div>
+            <div class="g-item">
+                <strong><i class="fa-solid fa-user-secret"></i> Trust No One Mode</strong>
+                Unlock high-sensitivity heuristics that aggressively mask anything resembling a secret, even in short snippets or casual prose.
+            </div>
+            <div class="g-item">
+                <strong><i class="fa-solid fa-file-export"></i> Professional Export</strong>
+                Export your research and snippets into consolidated <b>.TXT</b>, <b>.CSS</b>, or <b>.JSON</b> files for easy integration into your projects.
+            </div>
+            <div class="g-item" style="grid-column: 1 / -1;">
+                <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Smart Transforms</strong>
+                Click the magic wand icon to reveal 6 instant formatting tools. Convert snippets into <b>UPPER</b>, <b>lower</b>, <b>Sentence case</b>, <b>camelCase</b>, or <b>-slugify-</b>. The <b>Clean URL</b> tool is context-aware: it strips tracking tags (like <i>utm_source</i>) from web links, or strips all whitespace from regular text.
+            </div>
+        </div>
+    </div>
+</div>` : ''}
             <div id="guide-hotkeys" class="tab-pane">
                 <div class="st-title" style="margin-top: 0;">System Shortcuts</div>
                 <div class="g-grid" style="grid-template-columns: 1fr; gap: 8px;">
@@ -253,7 +224,7 @@ export const Templates = {
                      
                      <div class="g-item" style="display:flex; flex-direction:column; gap:8px; padding:10px 12px; grid-column: 1 / -1;">
                          <div style="display:flex; justify-content:space-between; align-items:center;">
-                             <span style="font-weight:bold; color:var(--accent);">Contextual Action Key</span>
+                             <span style="font-weight:bold; color:var(--app-theme);">Contextual Action Key</span>
                              <span class="k-badge">Enter</span>
                          </div>
                          <div style="font-size: 11px; color: #aaa; line-height: 1.5; padding-left: 4px;">
@@ -264,9 +235,6 @@ export const Templates = {
                      </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-`;
+        `;
     }
 };

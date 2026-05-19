@@ -72,8 +72,6 @@ const searchMeta = document.getElementById('searchMeta');
 const matchCount = document.getElementById('matchCount');
 const searchUpBtn = document.getElementById('searchUpBtn');
 const searchDownBtn = document.getElementById('searchDownBtn');
-const getEl = (id) => document.getElementById(id);
-const purgeModal = getEl('purgeModal');
 
 // --- MODALS & MENUS ---
 const modal = document.getElementById('custom-modal');
@@ -93,15 +91,6 @@ const dlBtn = document.getElementById('dlBtn');
 const clrBtn = document.getElementById('clrBtn');
 const toggleLogBtn = document.getElementById('toggleLog');
 const flushLogBtn = document.getElementById('flushLog');
-// Add this to your DOM initialization in renderer.js
-const exportMenu = document.createElement('div');
-exportMenu.id = 'exportMenu';
-exportMenu.innerHTML = `
-    <div class="export-item" data-type="txt">.TXT (Plain List)</div>
-    <div class="export-item" data-type="json">.JSON (Object)</div>
-    <div class="export-item" data-type="css">.CSS (Variables)</div>
-`;
-document.body.appendChild(exportMenu);
 
 
 // --- [FINAL PIXEL-PERFECT CALIBRATION] WINDOW SIZING ---
@@ -167,11 +156,6 @@ const updateWindowHeight = Utils.debounce((args = null) => {
     let finalHeight = Math.max((chromeHeight + listContentHeight), minHeight);
     finalHeight = Math.ceil(finalHeight * scale);
     finalHeight = Math.min(finalHeight, maxHeight);
-    
-    // IF HELP MODAL IS OPEN, OVERRIDE TO NEW HEIGHT HEIGHT PLATFORM
-    if (isHelpOpen) {
-        finalHeight = Math.min(Math.ceil(650 * scale), maxHeight); /* <--- INCREASE TO 650 */
-    }
     
     const currentLayout = isHelpOpen ? 2 : (isSettingsOpen ? 1 : 0);
 
@@ -349,8 +333,8 @@ const updateActionButtons = () => {
         isSelectionMode = true;
         dlBtn.textContent = `Export (${count})`;
         dlBtn.classList.add('active-selection');
-        dlBtn.style.color = "var(--accent)";
-        dlBtn.style.borderColor = "var(--accent)";
+        dlBtn.style.color = "var(--app-theme)";
+        dlBtn.style.borderColor = "var(--app-theme)";
         
         clrBtn.textContent = `Delete (${count})`;
         clrBtn.classList.add('active-selection');
@@ -419,7 +403,7 @@ const renderList = (history) => {
         
         historyBox.innerHTML = `
             <span>CLIP HISTORY</span>
-            <span style="font-family: system-ui; font-weight: 600; font-size: 10px; color: var(--accent);">
+            <span style="font-family: system-ui; font-weight: 600; font-size: 10px; color: var(--app-theme);">
                ITEMS: ${displayedHistory.length}/${maxLimit} 
             </span>
         `;
@@ -498,15 +482,10 @@ const isSecret = HistoryManager.isSecret(item, globalSettings, IS_PRO_BUILD);
                     ${item.type === 'image' ? `<img src="${(typeof item.text === 'string' && item.text.startsWith('data:')) ? item.text : 'scp://load/' + item.text}" class="clip-image" onerror="this.style.display='none'; this.parentNode.innerHTML='<div style=\\'padding:10px; color:#e74c3c; font-size:10px;\\'>[IMAGE DELETED]</div>';" />` : `<div class="text-content"></div>`}
                 </div>
                 <div class="item-footer">
-        <div style="display:flex; gap:10px; align-items:center; flex: 1;">
-            ${showTimes ? `<span style="font-size:0.55rem; color:var(--muted);">${ts}</span>` : ''}
-            
-            <div class="label-wrap">
-                <span class="clip-label click-only" title="${item.label ? 'Edit Label' : 'Set Custom Label'}">
-                    <i class="fa-solid fa-tag"></i> ${item.label || 'Add Label'}
-                </span>
-            </div>
-        </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        ${showTimes ? `<span style="font-size:0.55rem; color:var(--muted);">${ts}</span>` : ''}
+                        <span class="clip-label click-only" style="font-size:0.55rem; color:var(--app-theme); cursor:pointer; font-weight:bold; opacity:0.6; transition: opacity 0.2s;" title="${item.label ? 'Edit Label' : 'Set Custom Label'}"><i class="fa-solid fa-tag"></i> ${item.label || 'Add Label'}</span>
+                    </div>
                     <div style="display:flex; align-items:center; gap:4px;">
                         ${smartActionHTML}
                         <button class="action-btn del-btn ${item.favorite ? 'disabled' : ''}" title="${item.favorite ? 'Unfavorite to Delete' : 'Delete'}"><i class="fa-solid fa-trash"></i></button>
@@ -530,16 +509,13 @@ const isSecret = HistoryManager.isSecret(item, globalSettings, IS_PRO_BUILD);
     labelBtn.style.display = "block"; 
     
     // 3. Make the input 100% width so it hits the trash can boundary
-   labelBtn.innerHTML = `
-    <input type="text" 
-        value="${item.label || ''}" 
-        placeholder="Customize..."
-        maxlength="65" 
-        style="width: 100%; background: transparent; border: none; color: var(--accent); 
-               font-size: 0.65rem; font-weight: 600; outline: none; padding: 0; 
-               font-family: 'Segoe UI', sans-serif; font-style: italic;"
-               line-height: 18px; height: 18px;">
-`;
+    labelBtn.innerHTML = `
+        <input type="text" 
+            value="${item.label || ''}" 
+            placeholder="Type & hit Enter" 
+            style="width: 97%; box-sizing: border-box; font-size: 0.55rem; background: var(--bg); border: 1px solid var(--app-theme); color: var(--app-theme); outline: none; border-radius: 2px; padding: 2px 4px; font-family: 'Segoe UI', sans-serif;">
+    `;
+    
     const input = labelBtn.querySelector('input');
     if (input) {
         input.onclick = (ev) => ev.stopPropagation();
@@ -714,8 +690,8 @@ btn.style.cssText = `
         
         // --- DYNAMIC HOVER GLOW ---
 btn.onmouseenter = () => {
-    btn.style.color = 'var(--accent)';
-    btn.style.textShadow = '0 0 8px var(--accent)';
+    btn.style.color = 'var(--app-theme)';
+    btn.style.textShadow = '0 0 8px var(--app-theme)';
 };
 btn.onmouseleave = () => {
     btn.style.color = 'var(--txt)';
@@ -761,16 +737,17 @@ tfMenu.appendChild(btn);
                             // THE FIX: Smart Auto-Resize
                             let lastScrollHeight = 0;
                             const resizeTa = () => {
-    ta.style.height = 'auto';
-    // THE FIX: Cap the height at 150px so it stops expanding the item card
-    const newHeight = Math.min(ta.scrollHeight, 150); 
-    ta.style.height = newHeight + 'px';
-    
-    if (newHeight !== lastScrollHeight) {
-        lastScrollHeight = newHeight;
-        updateWindowHeight();
-    }
-};
+                                ta.style.height = 'auto';
+                                const newHeight = ta.scrollHeight;
+                                ta.style.height = newHeight + 'px';
+                                
+                                // ONLY ping the OS to resize if the text block actually grew/shrank
+                                // This stops the rapid-fire IPC spam that kills the drag handler
+                                if (newHeight !== lastScrollHeight) {
+                                    lastScrollHeight = newHeight;
+                                    updateWindowHeight();
+                                }
+                            };
                             
                             ta.addEventListener('input', resizeTa);
                             setTimeout(() => { resizeTa(); ta.focus(); }, 10);
@@ -920,28 +897,20 @@ window.smartClip.loadData();
 window.smartClip.onRefreshData((history) => { fullHistory = history; renderList(history); });
 window.smartClip.onPauseStatus((isPaused) => {
     const header = document.querySelector('.header');
-    const appLogo = document.getElementById('appLogo'); // Target the logo div
     
     if (isPaused) { 
-        // 1. Swap to Danger Logo
-        if (appLogo) appLogo.style.backgroundImage = "url('danger-logo.png')";
-        
-        // 2. Play Button Logic (Your existing PNG swap)
         pauseBtn.classList.add('active'); 
+        // CLEAR EVERYTHING inside and add ONLY the play icon
         pauseBtn.innerHTML = ''; 
-        const playImg = document.createElement('img');
-        playImg.src = 'play-button.png';
-        playImg.className = 'btn-icon-img';
-        pauseBtn.appendChild(playImg);
+        const playIcon = document.createElement('i');
+        playIcon.className = 'fa-solid fa-play';
+        pauseBtn.appendChild(playIcon);
         
         pauseBtn.title = "Resume Capture"; 
         header.classList.add('paused'); 
     } else { 
-        // 1. Restore Normal Logo
-        if (appLogo) appLogo.style.backgroundImage = "url('icon.png')";
-        
-        // 2. Restore Pause Button Logic
         pauseBtn.classList.remove('active'); 
+        // Restore the default Pause mask
         pauseBtn.innerHTML = '<span class="ctrl-icon"></span>'; 
         pauseBtn.title = "Pause Capture"; 
         header.classList.remove('paused'); 
@@ -1072,40 +1041,14 @@ if(document.getElementById('ctx-copy')) {
 if(pauseBtn) pauseBtn.onclick = () => window.smartClip.togglePause();
 
 document.getElementById('toggleLog').onclick = () => { const l = document.getElementById('systemLog'); l.style.display = (l.style.display === 'block') ? 'none' : 'block'; setTimeout(updateWindowHeight, 50); };
-// [HS PARITY] Purge Terminal Warning Logic
-if (flushLogBtn) {
-    flushLogBtn.onclick = () => {
-        if (purgeModal) purgeModal.style.display = 'flex'; // Intercept and show warning
-    };
-}
-
-// --- [HS PARITY] PURGE MODAL ACTIONS ---
-
-// Modal "Yes" Action: Confirming the Purge
-if (getEl('purgeYes')) {
-    getEl('purgeYes').onclick = () => {
-        // 1. Perform the actual data purge
-        // Note: Using false ensures we don't trigger a full UI refresh yet
-        saveSetting('logs', [], false); 
-        systemLogs = []; 
-        renderLogs(); 
-        
-        // 2. Close the modal
-        if (purgeModal) purgeModal.style.display = 'none';
-        
-        // 3. SC Feedback: Use the System Toast method
-        // First param is text, second is boolean for 'success/error' style
-        Utils.showSystemToast("SYSTEM LOGS PURGED", true); 
-    };
-}
-
-// Modal "No" Action: Canceling
-if (getEl('purgeNo')) {
-    getEl('purgeNo').onclick = () => {
-        // Simply hide the overlay
-        if (purgeModal) purgeModal.style.display = 'none';
-    };
-}
+if(flushLogBtn) flushLogBtn.onclick = () => window.smartClip.flushLogs();
+document.getElementById('spinUp').onclick = () => { 
+    const absoluteMax = IS_PRO_BUILD ? 500 : 50; 
+    // Fallback to 50 prevents the math from returning NaN if the box is somehow empty
+    let currentVal = parseInt(maxInput.value) || 50; 
+    maxInput.value = Math.min(absoluteMax, currentVal + 5); 
+    window.smartClip.updateSettings({ maxItems: parseInt(maxInput.value) }); 
+};
 
 document.getElementById('spinDown').onclick = () => { 
     let currentVal = parseInt(maxInput.value) || 50;
@@ -1212,69 +1155,10 @@ if(ttToggle) {
         globalSettings.tooltipsEnabled = ttToggle.checked; 
     };
 }
-
-// [LANDMARK] EXPORT SYSTEM - REPLICATING HS LOGIC FOR SC
-if (dlBtn && IS_PRO_BUILD && exportMenu) {
-    // 1. THE HS TOGGLE: Toggles the tactical menu visibility
-    dlBtn.onclick = (e) => {
-        e.stopPropagation();
-        exportMenu.style.display = exportMenu.style.display === 'flex' ? 'none' : 'flex';
-    };
-    
-    // 2. THE HS FORMAT LOGIC: Context-aware formatting (JSON, CSS, TXT)
-    document.querySelectorAll('.export-item').forEach(item => {
-        item.onclick = (e) => {
-            e.stopPropagation();
-            exportMenu.style.display = 'none';
-            const format = item.getAttribute('data-type').toLowerCase();
-            
-            // Replicate HS selection logic: Export only checked items if they exist
-            const itemsToExport = selectedItems.size > 0 
-                ? fullHistory.filter(h => selectedItems.has(h.hex)) 
-                : fullHistory;
-
-            let payloadStr = "";
-
-            if (format === 'json') {
-                const dict = {};
-                itemsToExport.forEach((color, index) => {
-                    const baseName = color.label ? color.label.toLowerCase().trim().replace(/\s+/g, '-') : 'color';
-                    let keyName = baseName;
-                    
-                    // HS Safety: Prevent duplicate keys in JSON
-                    if (dict[keyName]) {
-                        keyName = `${baseName}-${index + 1}`;
-                    }
-                    dict[keyName] = color.hex;
-                });
-                payloadStr = JSON.stringify(dict, null, 2); 
-            } else if (format === 'css') {
-                // HS CSS Formatting: Standard :root variables
-                payloadStr = ":root {\n";
-                itemsToExport.forEach((color, index) => {
-                    const keyName = color.label ? color.label.toLowerCase().trim().replace(/\s+/g, '-') : `color-${index + 1}`;
-                    payloadStr += `  --${keyName}: ${color.hex};\n`;
-                });
-                payloadStr += "}\n";
-            } else {
-                // HS TXT Formatting: Plain list
-                itemsToExport.forEach((color) => {
-                    const prefix = color.label ? `${color.label} ` : '';
-                    payloadStr += `${prefix}${color.hex}\n`;
-                });
-            }
-
-            // Calls the main process to open save dialogue with formatted payload
-            // Note: Ensure SC uses the same IPC channel 'downloadHistory' as HS
-           window.smartClip.downloadHistory(payloadStr, format);
-        };
-    });
-    
-    // 3. THE HS DISMISSAL: Close menu when clicking anywhere else
-    document.addEventListener('click', () => { 
-        if (exportMenu) exportMenu.style.display = 'none'; 
-    });
-}
+if(dlBtn && IS_PRO_BUILD) dlBtn.onclick = () => { 
+    if (selectedItems.size > 0) window.smartClip.downloadHistory(Array.from(selectedItems)); 
+    else window.smartClip.downloadHistory([]); 
+};
 
 if (clrBtn) {
     clrBtn.onclick = () => {

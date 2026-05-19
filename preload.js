@@ -33,13 +33,13 @@ const smartClipAPI = {
     
     devModeToggle: (val) => smartClipAPI.send('dev-mode-toggle', val),
     // 2. Safe Wrapper for Sending
-    send: (channel, data) => {
-        if (VALID_CHANNELS.SEND.includes(channel)) {
-            ipcRenderer.send(channel, data);
-        } else {
-            console.warn(`[Blocked] Unauthorized IPC send: ${channel}`);
-        }
-    },
+   send: (channel, ...args) => {
+    if (VALID_CHANNELS.SEND.includes(channel)) {
+        ipcRenderer.send(channel, ...args);
+    } else {
+        console.warn(`[Blocked] Unauthorized IPC send: ${channel}`);
+    }
+},
 
     // 3. Safe Wrapper for Listening
     on: (channel, func) => {
@@ -74,7 +74,8 @@ const smartClipAPI = {
     editItem: (data) => smartClipAPI.send('edit-item', data),
     clearHistory: () => smartClipAPI.send('clear-history'),
     
-    downloadHistory: (ids) => smartClipAPI.send('download-history', ids),
+    // CHANGE THIS: From (ids) to (payloadStr, format)
+downloadHistory: (payloadStr, format) => smartClipAPI.send('download-history', payloadStr, format),
     
     // MIGRATION & WINDOW ACTIONS
     openExternal: (url) => smartClipAPI.send('open-external', url),

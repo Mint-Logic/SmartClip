@@ -28,10 +28,10 @@
             <div class="confirm-title">Clear Workspace</div>
             <div class="confirm-msg">
                 This will remove all unpinned items.<br>
-                <span style="color: var(--app-theme); opacity: 0.8; font-size: 0.7rem;">(Recoverable via System Terminal)</span>
+                <span style="color: var(--accent); opacity: 0.8; font-size: 0.7rem;">(Recoverable via System Terminal)</span>
             </div>
             <div class="confirm-actions">
-                <button id="confirmYes" class="modal-btn" style="border-color:var(--app-theme); color:var(--app-theme);">Clear List</button>
+                <button id="confirmYes" class="modal-btn" style="border-color:var(--accent); color:var(--accent);">Clear List</button>
                 <button id="confirmNo" class="modal-btn">Cancel</button>
             </div>
         </div>
@@ -92,10 +92,10 @@
     </div>
     
     <div class="header-center">
-        <button class="win-btn" id="pauseBtn" title="Pause Capture" style="font-size: 26px;">
-            <span class="ctrl-icon"></span>
-        </button>
-    </div>
+    <button class="win-btn" id="pauseBtn" title="Pause Capture" style="font-size: 26px;">
+        <img src="play-button.png" id="pauseIconImg" class="btn-icon-img" alt="Play">
+    </button>
+</div>
     
     <div class="header-controls">
         <button class="win-btn" id="settingsBtn" title="Settings"><i class="fa-solid fa-gear"></i></button>
@@ -107,7 +107,7 @@
     
     <div id="settingsPanel" class="settings-panel" style="display: none; padding-bottom: 10px;">
         
-        <button id="guideLauncher" class="tool-btn" style="width: 100%; text-align: center; margin-bottom: 12px; color: var(--app-theme); border: 1px dotted var(--app-theme); font-weight: bold; background: rgba(0, 188, 212, 0.05); padding: 8px 0; font-size: 0.65rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <button id="guideLauncher" class="tool-btn" style="width: 100%; text-align: center; margin-bottom: 12px; color: var(--accent); border: 1px dotted var(--accent); font-weight: bold; background: rgba(0, 188, 212, 0.05); padding: 8px 0; font-size: 0.65rem; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <i class="fa-solid fa-sliders"></i> OPEN SETTINGS & GUIDE
         </button>
 
@@ -168,5 +168,16 @@
 </div>
     
     <script type="module" src="renderer.js"></script>
+
+    <div id="purgeModal" style="display: none;">
+    <div class="confirm-content" style="border-color: #e74c3c;">
+        <div class="confirm-title" style="color: #e74c3c;">Purge System Logs</div>
+        <div class="confirm-msg">This action cannot be undone.<br>All terminal history will be lost.</div>
+        <div class="confirm-actions">
+            <button id="purgeYes" class="modal-btn danger">Purge Logs</button>
+            <button id="purgeNo" class="modal-btn">Cancel</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
