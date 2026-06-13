@@ -491,13 +491,15 @@ if (text && text.trim() !== '') {
     if (isColor && settings.ignoreColors) return; 
 
     if (text !== pendingText) {
-                    pendingText = text;
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        saveClip(pendingText, 'text');
-                    }, 100);
-                }
-            }
+        pendingText = text;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            saveClip(pendingText, 'text');
+        }, 100);
+        
+        return; 
+    }
+}
         } catch (err) {
             console.error("Clipboard Error:", err);
         }
