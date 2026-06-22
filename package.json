@@ -1,7 +1,7 @@
 {
   "name": "smartclip",
   "productName": "SmartClip",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Smart clipboard manager with OCR and history analysis.",
   "main": "main.js",
   "scripts": {

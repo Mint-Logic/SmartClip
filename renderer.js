@@ -1228,10 +1228,10 @@ if (dlBtn && IS_PRO_BUILD && exportMenu) {
             exportMenu.style.display = 'none';
             const format = item.getAttribute('data-type').toLowerCase();
             
-            // Replicate HS selection logic: Export only checked items if they exist
+            // 🟢 THE FIX: Export only items that match the active category filter/search tab
             const itemsToExport = selectedItems.size > 0 
-                ? fullHistory.filter(h => selectedItems.has(h.hex)) 
-                : fullHistory;
+                ? fullHistory.filter(h => selectedItems.has(h.hex)) // Keep your multi-select logic intact
+                : displayedHistory; // 🌟 Changed from fullHistory to displayedHistory
 
             let payloadStr = "";
 
@@ -1285,7 +1285,16 @@ if (clrBtn) {
                 selectedItems.clear(); 
             });
         } else {
-            confirmModal.classList.add('show');
+            // 🟢 THE FIX: Customize the modal warning text based on your active filter
+            const filterLabel = activeFilter === 'ALL' ? 'ALL HISTORY' : `ALL FILTERED ${activeFilter} ITEMS`;
+            
+            showConfirm(`PURGE ${filterLabel}?`, () => {
+                // Map out the precise list of timestamps currently visible in this view
+                const timestampsToRemove = displayedHistory.map(item => item.timestamp);
+                
+                // Fire the batch delete pipeline across just those items
+                window.smartClip.deleteItems(timestampsToRemove);
+            });
         }
     };
 }
