@@ -35,7 +35,7 @@ export const Templates = {
                             <span class="edition-label ${isPro ? 'pro' : 'core'}" style="font-size:9px; position: absolute; left: 100%; top: 0; margin-left: 4px;">${isPro ? 'PRO' : 'CORE'}</span>
                         </span>
                     </div>
-                    <div style="font-size: 11px; color: #999; margin-top: 0px;">Version 1.0.0</div>
+                    <div style="font-size: 11px; color: #999; margin-top: 0px;">Version 1.0.1</div>
                     
                     ${!isPro ? `
                     <div style="font-size: 11px; color: var(--accent); border: 1px dashed var(--accent); padding: 6px 15px; border-radius: 4px; opacity: 0.8; text-align: center; margin: 8px auto 10px auto; max-width: 300px;">
